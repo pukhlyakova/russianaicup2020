@@ -23,6 +23,8 @@
                 <configuration>
                     <release>15</release>
                     <encoding>UTF-8</encoding>
+                    <source>15</source>
+                    <target>15</target>
                 </configuration>
             </plugin>
             <plugin>
