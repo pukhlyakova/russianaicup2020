@@ -10,49 +10,64 @@ public class MyStrategy {
             }
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-            MoveAction moveAction = null;
-            BuildAction buildAction = null;
-            if (properties.isCanMove()) {
-                moveAction = new MoveAction(
-                    new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1),
-                    true,
-                    true);
-            } else if (properties.getBuild() != null) {
-                EntityType entityType = properties.getBuild().getOptions()[0];
-                int currentUnits = 0;
-                for (Entity otherEntity : playerView.getEntities()) {
-                    if (otherEntity.getPlayerId() != null && otherEntity.getPlayerId() == myId
-                        && otherEntity.getEntityType() == entityType) {
-                        currentUnits++;
-                    }
-                }
-                if ((currentUnits + 1) * playerView.getEntityProperties().get(entityType).getPopulationUse() <= properties.getPopulationProvide()) {
-                    buildAction = new BuildAction(
-                        entityType,
-                        new Vec2Int(
-                            entity.getPosition().getX() + properties.getSize(),
-                            entity.getPosition().getY() + properties.getSize() - 1
-                        )
-                    );
-                }
-            }
-            EntityType[] validAutoAttackTargets;
-            if (entity.getEntityType() == EntityType.BUILDER_UNIT) {
-                validAutoAttackTargets = new EntityType[] { EntityType.RESOURCE };
-            } else {
-                validAutoAttackTargets = new EntityType[0];
-            }
+            MoveAction moveAction = createMovingAction(playerView, entity, properties);
+            BuildAction buildAction = createBuildAction(playerView, entity, properties);
+            AttackAction attackAction = createAttackAction(playerView, entity, properties);
+
             result.getEntityActions().put(entity.getId(), new EntityAction(
-                moveAction,
-                buildAction,
-                new AttackAction(
-                    null, new AutoAttack(properties.getSightRange(), validAutoAttackTargets)
-                ),
-                null
+                    moveAction,
+                    buildAction,
+                    attackAction,
+                    null
             ));
         }
         return result;
     }
+
+    private MoveAction createMovingAction(PlayerView playerView, Entity entity, EntityProperties properties) {
+        if (properties.isCanMove()) {
+            return new MoveAction(
+                    new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1),
+                    true,
+                    true);
+        }
+        return null;
+    }
+
+    private AttackAction createAttackAction(PlayerView playerView, Entity entity, EntityProperties properties) {
+        EntityType[] validAutoAttackTargets;
+        if (entity.getEntityType() == EntityType.BUILDER_UNIT) {
+            validAutoAttackTargets = new EntityType[] { EntityType.RESOURCE };
+        } else {
+            validAutoAttackTargets = new EntityType[0];
+        }
+        return new AttackAction(null, new AutoAttack(properties.getSightRange(), validAutoAttackTargets));
+    }
+
+    private BuildAction createBuildAction(PlayerView playerView, Entity entity, EntityProperties properties) {
+        if (properties.getBuild() != null) {
+            int myId = playerView.getMyId();
+            EntityType entityType = properties.getBuild().getOptions()[0];
+            int currentUnits = 0;
+            for (Entity otherEntity : playerView.getEntities()) {
+                if (otherEntity.getPlayerId() != null && otherEntity.getPlayerId() == myId
+                        && otherEntity.getEntityType() == entityType) {
+                    currentUnits++;
+                }
+            }
+            if ((currentUnits + 1) * playerView.getEntityProperties().get(entityType).getPopulationUse() <= properties.getPopulationProvide()) {
+                return new BuildAction(
+                        entityType,
+                        new Vec2Int(
+                                entity.getPosition().getX() + properties.getSize(),
+                                entity.getPosition().getY() + properties.getSize() - 1
+                        )
+                );
+            }
+        }
+        return null;
+    }
+
     public void debugUpdate(PlayerView playerView, DebugInterface debugInterface) {
         debugInterface.send(new DebugCommand.Clear());
         debugInterface.getState();
