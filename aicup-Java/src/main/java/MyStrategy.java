@@ -1,71 +1,75 @@
 import model.*;
+import strategy.*;
+
+import java.util.*;
+
 
 public class MyStrategy {
+    private Status status;
+
+    public MyStrategy() {
+        this.status = new Status();
+    }
+
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
         Action result = new Action(new java.util.HashMap<>());
+        Statistics statistics = new Statistics();
+
         int myId = playerView.getMyId();
+        Set<Entity> builders = new HashSet<>();
+        Set<Entity> fighters = new HashSet<>();
+        Set<Entity> others = new HashSet<>();
+        List<Entity> brokenHouse = new ArrayList<>();
+
         for (Entity entity : playerView.getEntities()) {
             if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
                 continue;
             }
+
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
+            updateStatistics(statistics, entity, properties);
 
-            MoveAction moveAction = createMovingAction(playerView, entity, properties);
-            BuildAction buildAction = createBuildAction(playerView, entity, properties);
-            AttackAction attackAction = createAttackAction(playerView, entity, properties);
-
-            result.getEntityActions().put(entity.getId(), new EntityAction(
-                    moveAction,
-                    buildAction,
-                    attackAction,
-                    null
-            ));
+            switch (entity.getEntityType()) {
+                case BUILDER_UNIT: {
+                    builders.add(entity);
+                    break;
+                }
+                case MELEE_UNIT:
+                case RANGED_UNIT:
+                    fighters.add(entity);
+                    break;
+                case WALL:
+                case HOUSE:
+                case BUILDER_BASE:
+                case MELEE_BASE:
+                case RANGED_BASE:
+                    if (entity.getHealth() < properties.getMaxHealth()) {
+                        brokenHouse.add(entity);
+                    }
+                    others.add(entity);
+                    break;
+                default:
+                    others.add(entity);
+                    break;
+            }
         }
+
+        BaseEntityActions baseEntityActions = new BaseEntityActions();
+        FighterEntityActions fighterEntityActions = new FighterEntityActions();
+        BuilderUnitEntityActions builderUnitEntityActions = new BuilderUnitEntityActions(brokenHouse, statistics, status);
+
+        baseEntityActions.addEntityActions(playerView, others, result);
+        fighterEntityActions.addEntityActions(playerView, fighters, result);
+        builderUnitEntityActions.addEntityActions(playerView, builders, result);
+
         return result;
     }
 
-    private MoveAction createMovingAction(PlayerView playerView, Entity entity, EntityProperties properties) {
-        if (properties.isCanMove()) {
-            return new MoveAction(
-                    new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1),
-                    true,
-                    true);
+    private void updateStatistics(Statistics statistics, Entity entity, EntityProperties properties) {
+        if (entity.isActive()) {
+            statistics.increasePopulationProvide(properties.getPopulationProvide());
         }
-        return null;
-    }
-
-    private AttackAction createAttackAction(PlayerView playerView, Entity entity, EntityProperties properties) {
-        EntityType[] validAutoAttackTargets;
-        if (entity.getEntityType() == EntityType.BUILDER_UNIT) {
-            validAutoAttackTargets = new EntityType[] { EntityType.RESOURCE };
-        } else {
-            validAutoAttackTargets = new EntityType[0];
-        }
-        return new AttackAction(null, new AutoAttack(properties.getSightRange(), validAutoAttackTargets));
-    }
-
-    private BuildAction createBuildAction(PlayerView playerView, Entity entity, EntityProperties properties) {
-        if (properties.getBuild() != null) {
-            int myId = playerView.getMyId();
-            EntityType entityType = properties.getBuild().getOptions()[0];
-            int currentUnits = 0;
-            for (Entity otherEntity : playerView.getEntities()) {
-                if (otherEntity.getPlayerId() != null && otherEntity.getPlayerId() == myId
-                        && otherEntity.getEntityType() == entityType) {
-                    currentUnits++;
-                }
-            }
-            if ((currentUnits + 1) * playerView.getEntityProperties().get(entityType).getPopulationUse() <= properties.getPopulationProvide()) {
-                return new BuildAction(
-                        entityType,
-                        new Vec2Int(
-                                entity.getPosition().getX() + properties.getSize(),
-                                entity.getPosition().getY() + properties.getSize() - 1
-                        )
-                );
-            }
-        }
-        return null;
+        statistics.increasePopulationUse(properties.getPopulationUse());
     }
 
     public void debugUpdate(PlayerView playerView, DebugInterface debugInterface) {
