@@ -4,36 +4,55 @@ import model.*;
 
 public class Statistics {
     private int resource;
-    private int populationUse = 0;
-    private int populationProvide = 0;
+    private int populationUse;
+    private int populationProvide;
+
+    private static final int ENTITY_TYPE_COUNT = 10;
+
+    private int[] entityTypeCount;
+
     private int[][] map; // contains EntityType.tag + 1, because 0 is for empty
 
     public Statistics() {
+        entityTypeCount = new int[ENTITY_TYPE_COUNT];
     }
 
-    public void increasePopulationUse(int val) {
-        populationUse += val;
-    }
+    public void updateStatistics(PlayerView playerView) {
+        int myId = playerView.getMyId();
 
-    public int getPopulationUse() {
-        return populationUse;
-    }
+        // fill map
+        fillMap(playerView);
 
-    public void increasePopulationProvide(int val) {
-        populationProvide += val;
-    }
+        // save resource info
+        for (Player player : playerView.getPlayers()) {
+            if (player.getId() == myId) {
+                resource = player.getResource();
+            }
+        }
 
-    public int getPopulationProvide() {
-        return populationProvide;
-    }
+        // save population info
+        populationUse = 0;
+        populationProvide = 0;
 
-    public boolean shouldBuildHouse() {
-        return true;
-        //return populationProvide - populationUse < 5;
-    }
+        // clear entityTypeCount
+        for (int i = 0; i < ENTITY_TYPE_COUNT; ++i) {
+            entityTypeCount[i] = 0;
+        }
 
-    public int[][] getMap() {
-        return map;
+        for (Entity entity : playerView.getEntities()) {
+            EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
+
+            if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
+                continue;
+            }
+
+            if (entity.isActive()) {
+                populationProvide += properties.getPopulationProvide();
+            }
+            populationUse += properties.getPopulationUse();
+
+            entityTypeCount[entity.getEntityType().tag]++;
+        }
     }
 
     public void fillMap(PlayerView playerView) {
@@ -67,11 +86,28 @@ public class Statistics {
         }
     }
 
+    public int countOfEntityWithType(EntityType entityType) {
+        return entityTypeCount[entityType.tag];
+    }
+
+    public boolean shouldBuildHouse() {
+        return true;
+        //return populationProvide - populationUse < 5;
+    }
+
+    public int[][] getMap() {
+        return map;
+    }
+
     public int getResource() {
         return resource;
     }
 
-    public void setResource(int resource) {
-        this.resource = resource;
+    public int getPopulationUse() {
+        return populationUse;
+    }
+
+    public int getPopulationProvide() {
+        return populationProvide;
     }
 }
