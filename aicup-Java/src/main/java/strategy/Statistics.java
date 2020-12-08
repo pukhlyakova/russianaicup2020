@@ -14,7 +14,6 @@ public class Statistics {
     private int[][] map; // contains EntityType.tag + 1, because 0 is for empty
 
     private Vec2Int fightersTarget; // the coordinates of the nearest enemy to (0, 0)
-    private Vec2Int resourcesTarget; // coordinates of the nearest resources to (0, 0)
     private Vec2Int houseTarget; // coordinates for the construction to (0, 0)
 
     public Statistics() {
@@ -46,18 +45,8 @@ public class Statistics {
             entityTypeCount[i] = 0;
         }
 
-        // clear resources target
-        resourcesTarget = null;
-
         for (Entity entity : playerView.getEntities()) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
-
-            // find new resources target
-            if (entity.getEntityType() == EntityType.RESOURCE) {
-                if (resourcesTarget == null || distance(entity.getPosition()) < distance(resourcesTarget)) {
-                    resourcesTarget = entity.getPosition();
-                }
-            }
 
             if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
                 continue;
@@ -103,17 +92,9 @@ public class Statistics {
         }
     }
 
-    private double distance(Vec2Int coordinates) {
-        // distance between (0, 0) and (x, y)
-        int x = coordinates.getX();
-        int y = coordinates.getY();
-
-        return Math.sqrt(x * x + y * y);
-    }
-
     private void updateHouseTarget(PlayerView playerView) {
         int size = playerView.getMapSize();
-        houseTarget = null;
+        boolean found = true;
 
         // get house size
         EntityProperties properties = playerView.getEntityProperties().get(EntityType.HOUSE);
@@ -123,14 +104,12 @@ public class Statistics {
         int x = 0;
         int y = 0;
 
-        boolean found = true;
-
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        for (int i = 0; i < size / 2; i++) {
+            for (int j = 0; j < size / 2; j++) {
                 found = true;
                 for (int k = 0; k < houseSize; ++k) {
                     for (int l = 0; l < houseSize; ++l) {
-                        if (map[i + k][j + l] != 0) { // not empty
+                        if (!isCellEmpty(i + k, j + l)) {
                             found = false;
                         }
                     }
@@ -147,6 +126,13 @@ public class Statistics {
         }
 
         houseTarget = new Vec2Int(x, y);
+    }
+
+    private boolean isCellEmpty(int x, int y) {
+        return map[x][y] == 0 || // empty
+               map[x][y] == EntityType.BUILDER_UNIT.tag + 1 ||
+               map[x][y] == EntityType.RANGED_UNIT.tag + 1 ||
+               map[x][y] == EntityType.MELEE_UNIT.tag + 1;
     }
 
     public int countOfEntityWithType(EntityType entityType) {
@@ -171,10 +157,6 @@ public class Statistics {
 
     public int getPopulationProvide() {
         return populationProvide;
-    }
-
-    public Vec2Int getResourcesTarget() {
-        return resourcesTarget;
     }
 
     public Vec2Int getHouseTarget() {

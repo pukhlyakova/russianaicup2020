@@ -9,9 +9,14 @@ public class BuilderUnitEntityActions {
     private Statistics statistics; // word Statistics
     private Status status; // current status
     private List<Entity> brokenHouse; // list of buildings that should be repaired
+    private List<Entity> resources; // list of resources
 
-    public BuilderUnitEntityActions(List<Entity> brokenHouse, Statistics statistics, Status status) {
+    public BuilderUnitEntityActions(List<Entity> brokenHouse,
+                                    List<Entity> resources,
+                                    Statistics statistics,
+                                    Status status) {
         this.brokenHouse = brokenHouse;
+        this.resources = resources;
         this.statistics = statistics;
         this.status = status;
     }
@@ -57,7 +62,7 @@ public class BuilderUnitEntityActions {
             EntityProperties properties = playerView.getEntityProperties().get(builder.getEntityType());
 
             MoveAction moveAction = createMovingAction(statistics.getHouseTarget());
-            BuildAction buildAction = createBuildAction(builder, properties);
+            BuildAction buildAction = createBuildAction(statistics.getHouseTarget());
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
@@ -67,20 +72,37 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1); // statistics.getResourcesTarget();
+        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
+
+        for (Entity resource : resources) {
+            if (distance(entity.getPosition(), resource.getPosition()) < distance(entity.getPosition(), target)) {
+                target = resource.getPosition();
+            }
+        }
+
         MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);
 
         return new EntityAction( moveAction, null, attackAction, null );
     }
 
+    private double distance(Vec2Int c1, Vec2Int c2) {
+        // distance between (0, 0) and (x, y)
+        int x1 = c1.getX();
+        int y1 = c1.getY();
+
+        int x2 = c1.getX();
+        int y2 = c1.getY();
+
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
     private RepairAction createRepairAction(Entity house) {
         return new RepairAction(house.getId());
     }
 
-    private BuildAction createBuildAction(Entity entity, EntityProperties properties) {
-        return new BuildAction(EntityType.HOUSE, new Vec2Int(entity.getPosition().getX() + properties.getSize(),
-                entity.getPosition().getY() + properties.getSize() - 1));
+    private BuildAction createBuildAction(Vec2Int pos) {
+        return new BuildAction(EntityType.HOUSE, pos);
     }
 
     private MoveAction createMovingAction(Vec2Int pos) {

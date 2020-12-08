@@ -24,13 +24,6 @@ public class HousesEntityActions extends BaseEntityActions {
         if (properties.getBuild() != null) {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
-            int count = statistics.countOfEntityWithType(entityType);
-
-            /*
-            if (count * 3 > statistics.getPopulationUse()) {
-                return null;
-            }
-             */
 
             if (statistics.getPopulationUse() < statistics.getPopulationProvide()) {
                 return new BuildAction(

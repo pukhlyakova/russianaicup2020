@@ -17,6 +17,7 @@ public class MyStrategy {
         Action result = new Action(new java.util.HashMap<>());
 
         int myId = playerView.getMyId();
+        List<Entity> resources = new ArrayList<>();
         List<Entity> builders = new ArrayList<>();
         List<Entity> fighters = new ArrayList<>();
         List<Entity> others = new ArrayList<>();
@@ -33,10 +34,12 @@ public class MyStrategy {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
             switch (entity.getEntityType()) {
-                case BUILDER_UNIT: {
+                case RESOURCE:
+                    resources.add(entity);
+                    break;
+                case BUILDER_UNIT:
                     builders.add(entity);
                     break;
-                }
                 case MELEE_UNIT:
                 case RANGED_UNIT:
                     fighters.add(entity);
@@ -61,8 +64,10 @@ public class MyStrategy {
         BaseEntityActions baseEntityActions = new BaseEntityActions();
         HousesEntityActions housesEntityActions = new HousesEntityActions(statistics);
         FighterEntityActions fighterEntityActions = new FighterEntityActions();
-        BuilderUnitEntityActions builderUnitEntityActions = new BuilderUnitEntityActions(brokenHouses, statistics, status);
-
+        BuilderUnitEntityActions builderUnitEntityActions = new BuilderUnitEntityActions(brokenHouses,
+                                                                                         resources,
+                                                                                         statistics,
+                                                                                         status);
         baseEntityActions.addEntityActions(playerView, others, result);
         housesEntityActions.addEntityActions(playerView, houses, result);
         fighterEntityActions.addEntityActions(playerView, fighters, result);
