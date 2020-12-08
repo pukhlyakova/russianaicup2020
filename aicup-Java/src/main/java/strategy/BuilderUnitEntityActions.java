@@ -56,7 +56,7 @@ public class BuilderUnitEntityActions {
         } else if (statistics.shouldBuildHouse()) {
             EntityProperties properties = playerView.getEntityProperties().get(builder.getEntityType());
 
-            MoveAction moveAction = createMovingAction(10, 10);
+            MoveAction moveAction = createMovingAction(statistics.getHouseTarget());
             BuildAction buildAction = createBuildAction(builder, properties);
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
@@ -67,7 +67,7 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
+        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1); // statistics.getResourcesTarget();
         MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);
 
@@ -81,10 +81,6 @@ public class BuilderUnitEntityActions {
     private BuildAction createBuildAction(Entity entity, EntityProperties properties) {
         return new BuildAction(EntityType.HOUSE, new Vec2Int(entity.getPosition().getX() + properties.getSize(),
                 entity.getPosition().getY() + properties.getSize() - 1));
-    }
-
-    private MoveAction createMovingAction(int x, int y) {
-        return createMovingAction(new Vec2Int(x, y));
     }
 
     private MoveAction createMovingAction(Vec2Int pos) {
