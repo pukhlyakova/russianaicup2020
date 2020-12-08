@@ -6,14 +6,15 @@ import java.util.*;
 
 public class MyStrategy {
     private Status status;
+    private Statistics statistics;
 
     public MyStrategy() {
         this.status = new Status();
+        this.statistics = new Statistics();
     }
 
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
         Action result = new Action(new java.util.HashMap<>());
-        Statistics statistics = new Statistics();
 
         int myId = playerView.getMyId();
         List<Entity> builders = new ArrayList<>();
@@ -68,28 +69,20 @@ public class MyStrategy {
 
     private void updateStatistics(Statistics statistics, PlayerView playerView) {
         int myId = playerView.getMyId();
-        int mapSize = playerView.getMapSize();
-        int[][] map = new int[mapSize][mapSize];
 
+        // fill map
+        statistics.fillMap(playerView);
+
+        // save resource info
         for (Player player : playerView.getPlayers()) {
             if (player.getId() == myId) {
                 statistics.setResource(player.getResource());
             }
         }
 
+        // save population info
         for (Entity entity : playerView.getEntities()) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
-
-            int x = entity.getPosition().getX();
-            int y = entity.getPosition().getY();
-            int size = properties.getSize();
-            int tag = entity.getEntityType().tag;
-
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    map[x + i][y + j] = tag + 1;
-                }
-            }
 
             if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
                 continue;
@@ -100,8 +93,6 @@ public class MyStrategy {
             }
             statistics.increasePopulationUse(properties.getPopulationUse());
         }
-
-        statistics.setMap(map);
     }
 
     public void debugUpdate(PlayerView playerView, DebugInterface debugInterface) {

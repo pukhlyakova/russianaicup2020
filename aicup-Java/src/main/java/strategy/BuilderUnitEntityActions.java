@@ -68,7 +68,8 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        Vec2Int target = statistics.closesPositionOfEntityType(EntityType.RESOURCE, entity.getPosition());
+        //Vec2Int target = statistics.closesPositionOfEntityType(EntityType.RESOURCE, entity.getPosition());
+        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
         MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);
 
