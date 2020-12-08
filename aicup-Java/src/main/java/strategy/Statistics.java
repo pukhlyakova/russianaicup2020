@@ -53,6 +53,11 @@ public class Statistics {
 
             entityTypeCount[entity.getEntityType().tag]++;
         }
+
+        // System.out.println("tick: " + playerView.getCurrentTick());
+        // System.out.println("BUILDER_UNIT " + entityTypeCount[3]);
+        // System.out.println("MELEE_UNIT " + entityTypeCount[5]);
+        // System.out.println("RANGED_UNIT " + entityTypeCount[7]);
     }
 
     public void fillMap(PlayerView playerView) {
