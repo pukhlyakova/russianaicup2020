@@ -16,10 +16,12 @@ public class MyStrategy {
         Statistics statistics = new Statistics();
 
         int myId = playerView.getMyId();
-        Set<Entity> builders = new HashSet<>();
-        Set<Entity> fighters = new HashSet<>();
-        Set<Entity> others = new HashSet<>();
+        List<Entity> builders = new ArrayList<>();
+        List<Entity> fighters = new ArrayList<>();
+        List<Entity> others = new ArrayList<>();
         List<Entity> brokenHouse = new ArrayList<>();
+
+        updateStatistics(statistics, playerView);
 
         for (Entity entity : playerView.getEntities()) {
             if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
@@ -27,7 +29,6 @@ public class MyStrategy {
             }
 
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
-            updateStatistics(statistics, entity, properties);
 
             switch (entity.getEntityType()) {
                 case BUILDER_UNIT: {
@@ -65,11 +66,42 @@ public class MyStrategy {
         return result;
     }
 
-    private void updateStatistics(Statistics statistics, Entity entity, EntityProperties properties) {
-        if (entity.isActive()) {
-            statistics.increasePopulationProvide(properties.getPopulationProvide());
+    private void updateStatistics(Statistics statistics, PlayerView playerView) {
+        int myId = playerView.getMyId();
+        int mapSize = playerView.getMapSize();
+        int[][] map = new int[mapSize][mapSize];
+
+        for (Player player : playerView.getPlayers()) {
+            if (player.getId() == myId) {
+                statistics.setResource(player.getResource());
+            }
         }
-        statistics.increasePopulationUse(properties.getPopulationUse());
+
+        for (Entity entity : playerView.getEntities()) {
+            EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
+
+            int x = entity.getPosition().getX();
+            int y = entity.getPosition().getY();
+            int size = properties.getSize();
+            int tag = entity.getEntityType().tag;
+
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    map[x + i][y + j] = tag + 1;
+                }
+            }
+
+            if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
+                continue;
+            }
+
+            if (entity.isActive()) {
+                statistics.increasePopulationProvide(properties.getPopulationProvide());
+            }
+            statistics.increasePopulationUse(properties.getPopulationUse());
+        }
+
+        statistics.setMap(map);
     }
 
     public void debugUpdate(PlayerView playerView, DebugInterface debugInterface) {

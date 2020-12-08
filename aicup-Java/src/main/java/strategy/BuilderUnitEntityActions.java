@@ -2,9 +2,7 @@ package strategy;
 
 import model.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class BuilderUnitEntityActions {
 
@@ -18,7 +16,7 @@ public class BuilderUnitEntityActions {
         this.status = status;
     }
 
-    public void addEntityActions(PlayerView playerView, Set<Entity> entities, Action result) {
+    public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         builderAction(entities, result, playerView);
 
         for (Entity entity : entities) {
@@ -30,39 +28,38 @@ public class BuilderUnitEntityActions {
         }
     }
 
-    private Entity findBuilder(Set<Entity> entities) {
+    private Entity findBuilder(List<Entity> entities) {
         for (Entity entity : entities) {
             if (status.getBuilderId() != null && entity.getId() == status.getBuilderId()) {
                 return entity;
             }
         }
-        return null;
+        Entity builder = entities.get(0);
+        status.setBuilderId(builder.getId());
+        return builder;
     }
 
-    private void builderAction(Set<Entity> entities, Action result, PlayerView playerView) {
-        if (!status.isBuilding() && brokenHouse.isEmpty() && !statistics.shouldBuildHouse()) {
-            status.setBuilderId(null);
-            status.setBuilding(false);
+    private void builderAction(List<Entity> entities, Action result, PlayerView playerView) {
+        if (statistics.getResource() < 100) {
             return;
         }
 
         Entity builder = findBuilder(entities);
 
-        if (builder == null) {
-            builder = new ArrayList<>(entities).get(0);
-            status.setBuilderId(builder.getId());
-        }
-
-        MoveAction moveAction = createMovingAction(10, 10);
-
         if (!brokenHouse.isEmpty()) {
-            RepairAction repairAction = createRepairAction();
+            Entity house = brokenHouse.get(0);
+
+            MoveAction moveAction = createMovingAction(house.getPosition());
+            RepairAction repairAction = createRepairAction(house);
+
             EntityAction action = new EntityAction( moveAction, null, null, repairAction );
             result.getEntityActions().put(builder.getId(), action);
-        } else if (status.isBuilding() || statistics.shouldBuildHouse()) {
-            status.setBuilding(true);
+        } else if (statistics.shouldBuildHouse()) {
             EntityProperties properties = playerView.getEntityProperties().get(builder.getEntityType());
+
+            MoveAction moveAction = createMovingAction(10, 10);
             BuildAction buildAction = createBuildAction(builder, properties);
+
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
         }
@@ -71,17 +68,15 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        MoveAction moveAction = createMovingAction(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
+        Vec2Int target = statistics.closesPositionOfEntityType(EntityType.RESOURCE, entity.getPosition());
+        MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);
 
         return new EntityAction( moveAction, null, attackAction, null );
     }
 
-    private RepairAction createRepairAction() {
-        if (brokenHouse.isEmpty()) {
-            return null;
-        }
-        return new RepairAction(brokenHouse.get(0).getId());
+    private RepairAction createRepairAction(Entity house) {
+        return new RepairAction(house.getId());
     }
 
     private BuildAction createBuildAction(Entity entity, EntityProperties properties) {
@@ -90,7 +85,11 @@ public class BuilderUnitEntityActions {
     }
 
     private MoveAction createMovingAction(int x, int y) {
-        return new MoveAction(new Vec2Int(x, y), true,true);
+        return createMovingAction(new Vec2Int(x, y));
+    }
+
+    private MoveAction createMovingAction(Vec2Int pos) {
+        return new MoveAction(pos, true,true);
     }
 
     private AttackAction createAttackAction(EntityProperties properties) {
