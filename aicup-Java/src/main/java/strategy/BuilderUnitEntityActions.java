@@ -22,6 +22,9 @@ public class BuilderUnitEntityActions {
     }
 
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
+        if (entities.isEmpty()) {
+            return;
+        }
         builderAction(entities, result, playerView);
 
         for (Entity entity : entities) {
