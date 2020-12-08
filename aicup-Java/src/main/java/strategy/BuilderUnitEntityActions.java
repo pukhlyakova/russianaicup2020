@@ -6,8 +6,8 @@ import java.util.List;
 
 public class BuilderUnitEntityActions {
 
-    private Statistics statistics; // update Statistics
-    private Status status; // list of builders, who NOT extract resources
+    private Statistics statistics; // word Statistics
+    private Status status; // current status
     private List<Entity> brokenHouse; // list of buildings that should be repaired
 
     public BuilderUnitEntityActions(List<Entity> brokenHouse, Statistics statistics, Status status) {
@@ -40,10 +40,9 @@ public class BuilderUnitEntityActions {
     }
 
     private void builderAction(List<Entity> entities, Action result, PlayerView playerView) {
-        if (statistics.getResource() < 100) {
+        if (status.getBuilderId() == null && statistics.getResource() < 100) {
             return;
         }
-
         Entity builder = findBuilder(entities);
 
         if (!brokenHouse.isEmpty()) {
@@ -68,7 +67,6 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        //Vec2Int target = statistics.closesPositionOfEntityType(EntityType.RESOURCE, entity.getPosition());
         Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
         MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);

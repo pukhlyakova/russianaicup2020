@@ -3,8 +3,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.HashMap;
 import java.io.BufferedOutputStream;
 
 import util.StreamUtil;

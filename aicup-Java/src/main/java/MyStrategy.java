@@ -5,8 +5,8 @@ import java.util.*;
 
 
 public class MyStrategy {
-    private Status status;
-    private Statistics statistics;
+    private Status status; // current status.
+    private Statistics statistics; // world statistic
 
     public MyStrategy() {
         this.status = new Status();

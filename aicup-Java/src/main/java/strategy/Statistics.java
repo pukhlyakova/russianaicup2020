@@ -2,8 +2,6 @@ package strategy;
 
 import model.*;
 
-import java.util.LinkedList;
-
 public class Statistics {
     private int resource;
     private int populationUse = 0;
@@ -11,42 +9,6 @@ public class Statistics {
     private int[][] map; // contains EntityType.tag + 1, because 0 is for empty
 
     public Statistics() {
-    }
-
-    /**
-     * This method return closes position of element with given type.
-     */
-    public Vec2Int closesPositionOfEntityType(EntityType type, Vec2Int currentPos) {
-        LinkedList<Vec2Int> linkedList = new LinkedList<>();
-        Vec2Int target = currentPos;
-        linkedList.addLast(currentPos);
-
-        while (!linkedList.isEmpty()) {
-            Vec2Int pos = linkedList.removeFirst();
-            if (map[pos.getX()][pos.getY()] == type.tag + 1) { // contains EntityType.tag + 1, because 0 is for empty
-                target = pos;
-                break;
-            }
-
-            if (pos.getX() - 1 >= 0) {
-                linkedList.add(new Vec2Int(pos.getX() - 1, pos.getY()));
-            }
-            if (pos.getY() - 1 >= 0) {
-                linkedList.add(new Vec2Int(pos.getX(), pos.getY() - 1));
-            }
-            if (pos.getX() + 1 < map.length) {
-                linkedList.add(new Vec2Int(pos.getX() + 1, pos.getY()));
-            }
-            if (pos.getY() + 1  < map.length) {
-                linkedList.add(new Vec2Int(pos.getX(), pos.getY() + 1));
-            }
-        }
-        linkedList.clear();
-        return target;
-    }
-
-    public void clear() {
-
     }
 
     public void increasePopulationUse(int val) {
@@ -67,6 +29,7 @@ public class Statistics {
 
     public boolean shouldBuildHouse() {
         return true;
+        //return populationProvide - populationUse < 5;
     }
 
     public int[][] getMap() {
