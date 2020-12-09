@@ -17,7 +17,7 @@ public class BuilderUnitEntityActions {
         if (entities.isEmpty()) {
             return;
         }
-        builderAction(entities, result, playerView);
+        builderAction(entities, result);
 
         for (Entity entity : entities) {
             if (status.getBuilderId() != null && entity.getId() == status.getBuilderId()) {
@@ -39,7 +39,7 @@ public class BuilderUnitEntityActions {
         return builder;
     }
 
-    private void builderAction(List<Entity> entities, Action result, PlayerView playerView) {
+    private void builderAction(List<Entity> entities, Action result) {
         if (status.getBuilderId() == null && status.getResource() < 100) {
             return;
         }
@@ -54,11 +54,8 @@ public class BuilderUnitEntityActions {
             EntityAction action = new EntityAction( moveAction, null, null, repairAction );
             result.getEntityActions().put(builder.getId(), action);
         } else if (status.shouldBuildHouse()) {
-            Vec2Int buildAt = new Vec2Int(builder.getPosition().getX(),
-                                          builder.getPosition().getY() + 1);
-
             MoveAction moveAction = createMovingAction(status.getHouseTarget());
-            BuildAction buildAction = createBuildAction(buildAt);
+            BuildAction buildAction = createBuildAction(builder, status.getHouseTarget());
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
@@ -99,8 +96,13 @@ public class BuilderUnitEntityActions {
         return new RepairAction(house.getId());
     }
 
-    private BuildAction createBuildAction(Vec2Int pos) {
-        return new BuildAction(EntityType.HOUSE, pos);
+    private BuildAction createBuildAction(Entity builder, Vec2Int targetPos) {
+        Vec2Int builderPos = builder.getPosition();
+        if (builderPos.getX() == targetPos.getX() && builderPos.getY() == targetPos.getY()) {
+            Vec2Int buildAt = new Vec2Int(builder.getPosition().getX(), builder.getPosition().getY() + 1);
+            return new BuildAction(EntityType.HOUSE, buildAt);
+        }
+        return null;
     }
 
     private MoveAction createMovingAction(Vec2Int pos) {
