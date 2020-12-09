@@ -46,7 +46,7 @@ public class HousesEntityActions {
                 return new BuildAction(
                         entityType,
                         new Vec2Int(
-                                entity.getPosition().getX() + properties.getSize(),
+                                entity.getPosition().getX() + properties.getSize() ,
                                 entity.getPosition().getY() + properties.getSize() - 1
                         )
                 );

@@ -46,7 +46,7 @@ public class BuilderUnitEntityActions {
         Entity builder = findBuilder(entities);
 
         if (!status.getBrokenHouses().isEmpty()) {
-            Entity house = status.getBrokenHouses().get(0);
+            Entity house = nearestHouseForRepairs(builder);
 
             MoveAction moveAction = createMovingAction(house.getPosition());
             RepairAction repairAction = createRepairAction(house);
@@ -60,6 +60,18 @@ public class BuilderUnitEntityActions {
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
         }
+    }
+
+    private Entity nearestHouseForRepairs(Entity builder) {
+        Entity house = null;
+        for (Entity entity : status.getBrokenHouses()) {
+            if (house == null ||
+                    Utils.distance(builder.getPosition(), entity.getPosition()) <
+                    Utils.distance(builder.getPosition(), house.getPosition())) {
+                house = entity;
+            }
+        }
+        return house;
     }
 
     private EntityAction collectResources(PlayerView playerView, Entity entity) {

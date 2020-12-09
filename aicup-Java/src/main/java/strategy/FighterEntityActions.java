@@ -13,7 +13,6 @@ public class FighterEntityActions {
     }
 
     // priority: attack, build, repair и move
-
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());

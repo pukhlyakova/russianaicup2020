@@ -127,7 +127,8 @@ public class Status {
 
         // get house size
         EntityProperties properties = playerView.getEntityProperties().get(EntityType.HOUSE);
-        int houseSize = properties.getSize() + 1;
+        int houseSize = properties.getSize(); // house size
+        int spaceSize = properties.getSize(); // need space to stay and to move
 
         // coordinates for new house
         int x = 0;
@@ -136,8 +137,8 @@ public class Status {
         for (int i = 0; i < mapSize / 2; i++) {
             for (int j = 0; j < mapSize / 2; j++) {
                 found = true;
-                for (int k = 0; k < houseSize; ++k) {
-                    for (int l = 0; l < houseSize; ++l) {
+                for (int k = 0; k < spaceSize; ++k) {
+                    for (int l = 0; l < spaceSize; ++l) {
                         if (!isCellEmpty(i + k, j + l)) {
                             found = false;
                         }
