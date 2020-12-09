@@ -54,8 +54,13 @@ public class BuilderUnitEntityActions {
             EntityAction action = new EntityAction( moveAction, null, null, repairAction );
             result.getEntityActions().put(builder.getId(), action);
         } else if (status.shouldBuildHouse()) {
+            EntityProperties properties = playerView.getEntityProperties().get(EntityType.HOUSE);
+            int houseSize = properties.getSize();
+            Vec2Int buildAt = new Vec2Int(status.getHouseTarget().getX() + 1,
+                                         status.getHouseTarget().getY() + 1);
+
             MoveAction moveAction = createMovingAction(status.getHouseTarget());
-            BuildAction buildAction = createBuildAction(status.getHouseTarget());
+            BuildAction buildAction = createBuildAction(buildAt);
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);

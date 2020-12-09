@@ -128,7 +128,7 @@ public class Status {
         // get house size
         EntityProperties properties = playerView.getEntityProperties().get(EntityType.HOUSE);
         int houseSize = properties.getSize(); // house size
-        int spaceSize = properties.getSize(); // need space to stay and to move
+        int spaceSize = properties.getSize() + 2; // need space to stay and to move
 
         // coordinates for new house
         int x = 0;
