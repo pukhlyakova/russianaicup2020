@@ -12,7 +12,7 @@ public class FighterEntityActions {
         this.status = status;
     }
 
-    // priority: attack, build, repair и move
+    // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
@@ -43,11 +43,9 @@ public class FighterEntityActions {
     }
 
     private MoveAction createMovingAction(Entity target) {
-        Vec2Int pos = new Vec2Int(0, 0);
-        if (target != null) {
-            pos = target.getPosition();
-        }
-        return new MoveAction(pos, true,true);
+        return new MoveAction(target == null ? new Vec2Int(0, 0) : target.getPosition(),
+                              true,
+                              true);
     }
 
     private AttackAction createAttackAction(Entity target, EntityProperties properties) {

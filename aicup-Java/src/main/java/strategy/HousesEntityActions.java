@@ -12,7 +12,7 @@ public class HousesEntityActions {
         this.status = status;
     }
 
-    // priority: attack, build, repair и move
+    // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
@@ -21,15 +21,12 @@ public class HousesEntityActions {
             AttackAction attackAction = createAttackAction(entity, properties);
 
             result.getEntityActions().put(entity.getId(), new EntityAction(
-                    null,
-                    buildAction,
-                    attackAction,
-                    null
+                    null, buildAction, attackAction, null
             ));
         }
     }
 
-    protected AttackAction createAttackAction(Entity entity, EntityProperties properties) {
+    private AttackAction createAttackAction(Entity entity, EntityProperties properties) {
         if (entity.getEntityType() == EntityType.TURRET) {
             EntityType[] validAutoAttackTargets =  new EntityType[0];
             return new AttackAction(null, new AutoAttack(properties.getSightRange(), validAutoAttackTargets));
@@ -37,7 +34,7 @@ public class HousesEntityActions {
         return null;
     }
 
-    protected BuildAction createBuildAction(Entity entity, EntityProperties properties) {
+    private BuildAction createBuildAction(Entity entity, EntityProperties properties) {
         if (properties.getBuild() != null) {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
@@ -47,8 +44,7 @@ public class HousesEntityActions {
                         entityType,
                         new Vec2Int(
                                 entity.getPosition().getX() + properties.getSize() ,
-                                entity.getPosition().getY() + properties.getSize() - 1
-                        )
+                                entity.getPosition().getY() + properties.getSize() - 1)
                 );
             }
         }

@@ -12,7 +12,7 @@ public class BuilderUnitEntityActions {
         this.status = status;
     }
 
-    // priority: attack, build, repair и move
+    // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         if (entities.isEmpty()) {
             return;
@@ -54,7 +54,6 @@ public class BuilderUnitEntityActions {
             EntityAction action = new EntityAction( moveAction, null, null, repairAction );
             result.getEntityActions().put(builder.getId(), action);
         } else if (status.shouldBuildHouse()) {
-
             Vec2Int buildAt = new Vec2Int(builder.getPosition().getX(),
                                           builder.getPosition().getY() + 1);
 
