@@ -3,13 +3,17 @@ package strategy;
 import model.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Status {
     private int resource; // count of resource
     private int populationUse; // population that user use
     private int populationProvide; // population that buildings provide
-    private Integer builderId; // id of builder who NOT collect resources, only build
+    private int houseSize; // size of house
+    private int mapSize; // size of map
+    private Set<Integer> builderIds; // ids of builder who NOT collect resources, only build
 
     private static final int ENTITY_TYPE_COUNT = 10;
 
@@ -30,10 +34,15 @@ public class Status {
         resources = new ArrayList<>();
         brokenHouses = new ArrayList<>();
         enemies = new ArrayList<>();
+        builderIds = new HashSet<>();
     }
 
     public void updateStatus(PlayerView playerView) {
         int myId = playerView.getMyId();
+
+        // save sizes
+        mapSize = playerView.getMapSize();
+        houseSize = playerView.getEntityProperties().get(EntityType.HOUSE).getSize();
 
         // clear
         resources.clear();
@@ -44,7 +53,7 @@ public class Status {
         fillMap(playerView);
 
         // update house target coordinates.
-        updateHouseTarget(playerView);
+        updateHouseTarget();
 
         // save resource info
         for (Player player : playerView.getPlayers()) {
@@ -62,6 +71,9 @@ public class Status {
             entityTypeCount[i] = 0;
         }
 
+        // tmp builderIds
+        Set<Integer> newBuilderIds = new HashSet<>();
+
         for (Entity entity : playerView.getEntities()) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
@@ -77,6 +89,11 @@ public class Status {
                 continue;
             }
 
+            // builderIds can contains dead builders.
+            if (builderIds.contains(entity.getId())) {
+                newBuilderIds.add(entity.getId());
+            }
+
             if (isHouse(entity.getEntityType()) && entity.getHealth() < properties.getMaxHealth()) {
                 brokenHouses.add(entity);
             }
@@ -88,6 +105,10 @@ public class Status {
 
             entityTypeCount[entity.getEntityType().tag]++;
         }
+
+        // update builderIds
+        builderIds.clear();
+        builderIds.addAll(newBuilderIds);
     }
 
     private void fillMap(PlayerView playerView) {
@@ -121,18 +142,14 @@ public class Status {
         }
     }
 
-    private void updateHouseTarget(PlayerView playerView) {
-        int mapSize = playerView.getMapSize();
+    private void updateHouseTarget() {
+        houseTarget = findHouseTarget(0, 0);
+    }
+
+    public Vec2Int findHouseTarget(int x, int y) {
         boolean found = true;
 
-        // get house size
-        EntityProperties properties = playerView.getEntityProperties().get(EntityType.HOUSE);
-        int houseSize = properties.getSize(); // house size
         int spaceSize = houseSize + 2; // need space to stay and to move
-
-        // coordinates for new house
-        int x = 0;
-        int y = 0;
 
         for (int i = 0; i < mapSize / 2; i++) {
             for (int j = 0; j < mapSize / 2; j++) {
@@ -155,7 +172,7 @@ public class Status {
             }
         }
 
-        houseTarget = new Vec2Int(x, y);
+        return new Vec2Int(x, y);
     }
 
     private boolean isHouse(EntityType type) {
@@ -182,8 +199,21 @@ public class Status {
         return true;
     }
 
-    public int[][] getMap() {
-        return map;
+    public boolean needNewBuilder() {
+        if (builderIds.size() == countOfEntityWithType(EntityType.BUILDER_UNIT)) {
+            return false;
+        }
+        if (builderIds.size() == 0 && resource > 100) {
+            return true;
+        }
+        if (builderIds.size() == 1 && resource > 250) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isPosEmpty(int x, int y) {
+        return map[x][y] == 0;
     }
 
     public int getResource() {
@@ -202,14 +232,6 @@ public class Status {
         return houseTarget;
     }
 
-    public Integer getBuilderId() {
-        return builderId;
-    }
-
-    public void setBuilderId(Integer builderId) {
-        this.builderId = builderId;
-    }
-
     public List<Entity> getResources() {
         return resources;
     }
@@ -220,5 +242,9 @@ public class Status {
 
     public List<Entity> getEnemies() {
         return enemies;
+    }
+
+    public Set<Integer> getBuilderIds() {
+        return builderIds;
     }
 }

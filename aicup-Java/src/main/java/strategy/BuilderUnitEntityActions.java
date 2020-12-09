@@ -14,37 +14,28 @@ public class BuilderUnitEntityActions {
 
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
-        if (entities.isEmpty()) {
-            return;
+        if (status.needNewBuilder()) {
+            addNewBuilder(entities);
         }
-        builderAction(entities, result);
-
         for (Entity entity : entities) {
-            if (status.getBuilderId() != null && entity.getId() == status.getBuilderId()) {
+            if (status.getBuilderIds().contains(entity.getId())) {
+                builderAction(entity, result);
                 continue;
             }
-            EntityAction entityAction = collectResources(playerView, entity);
-            result.getEntityActions().put(entity.getId(), entityAction);
+            result.getEntityActions().put(entity.getId(), collectResources(playerView, entity));
         }
     }
 
-    private Entity findBuilder(List<Entity> entities) {
+    private void addNewBuilder(List<Entity> entities) {
         for (Entity entity : entities) {
-            if (status.getBuilderId() != null && entity.getId() == status.getBuilderId()) {
-                return entity;
+            if (!status.getBuilderIds().contains(entity.getId())) {
+                status.getBuilderIds().add(entity.getId());
+                break;
             }
         }
-        Entity builder = entities.get(0);
-        status.setBuilderId(builder.getId());
-        return builder;
     }
 
-    private void builderAction(List<Entity> entities, Action result) {
-        if (status.getBuilderId() == null && status.getResource() < 100) {
-            return;
-        }
-        Entity builder = findBuilder(entities);
-
+    private void builderAction(Entity builder, Action result) {
         if (!status.getBrokenHouses().isEmpty()) {
             Entity house = nearestHouseForRepairs(builder);
 
@@ -55,7 +46,7 @@ public class BuilderUnitEntityActions {
             result.getEntityActions().put(builder.getId(), action);
         } else if (status.shouldBuildHouse()) {
             MoveAction moveAction = createMovingAction(status.getHouseTarget());
-            BuildAction buildAction = createBuildAction(builder, status.getHouseTarget());
+            BuildAction buildAction = createBuildAction(builder);
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
@@ -85,7 +76,6 @@ public class BuilderUnitEntityActions {
                 target = resource.getPosition();
             }
         }
-
         MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);
 
@@ -96,13 +86,9 @@ public class BuilderUnitEntityActions {
         return new RepairAction(house.getId());
     }
 
-    private BuildAction createBuildAction(Entity builder, Vec2Int targetPos) {
-        Vec2Int builderPos = builder.getPosition();
-        if (builderPos.getX() == targetPos.getX() && builderPos.getY() == targetPos.getY()) {
-            Vec2Int buildAt = new Vec2Int(builder.getPosition().getX(), builder.getPosition().getY() + 1);
-            return new BuildAction(EntityType.HOUSE, buildAt);
-        }
-        return null;
+    private BuildAction createBuildAction(Entity builder) {
+        Vec2Int buildAt = new Vec2Int(builder.getPosition().getX(), builder.getPosition().getY() + 1);
+        return new BuildAction(EntityType.HOUSE, buildAt);
     }
 
     private MoveAction createMovingAction(Vec2Int pos) {
