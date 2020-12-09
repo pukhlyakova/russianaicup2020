@@ -50,7 +50,7 @@ public class MyStrategy {
         }
 
         HousesEntityActions housesEntityActions = new HousesEntityActions(status);
-        FighterEntityActions fighterEntityActions = new FighterEntityActions();
+        FighterEntityActions fighterEntityActions = new FighterEntityActions(status);
         BuilderUnitEntityActions builderUnitEntityActions = new BuilderUnitEntityActions(status);
 
         housesEntityActions.addEntityActions(playerView, houses, result);

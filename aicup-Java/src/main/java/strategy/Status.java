@@ -23,10 +23,13 @@ public class Status {
 
     private List<Entity> brokenHouses; // list of buildings that should be repaired
 
+    private List<Entity> enemies; // list of enemies
+
     public Status() {
         entityTypeCount = new int[ENTITY_TYPE_COUNT];
         resources = new ArrayList<>();
         brokenHouses = new ArrayList<>();
+        enemies = new ArrayList<>();
     }
 
     public void updateStatus(PlayerView playerView) {
@@ -35,6 +38,7 @@ public class Status {
         // clear
         resources.clear();
         brokenHouses.clear();
+        enemies.clear();
 
         // fill map
         fillMap(playerView);
@@ -63,6 +67,10 @@ public class Status {
 
             if (entity.getEntityType() == EntityType.RESOURCE) {
                 resources.add(entity);
+            }
+
+            if (entity.getPlayerId() != null && entity.getPlayerId() != myId) {
+                enemies.add(entity);
             }
 
             if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
@@ -207,5 +215,9 @@ public class Status {
 
     public List<Entity> getBrokenHouses() {
         return brokenHouses;
+    }
+
+    public List<Entity> getEnemies() {
+        return enemies;
     }
 }

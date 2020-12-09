@@ -12,6 +12,7 @@ public class BuilderUnitEntityActions {
         this.status = status;
     }
 
+    // priority: attack, build, repair и move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         if (entities.isEmpty()) {
             return;
@@ -53,8 +54,6 @@ public class BuilderUnitEntityActions {
             EntityAction action = new EntityAction( moveAction, null, null, repairAction );
             result.getEntityActions().put(builder.getId(), action);
         } else if (status.shouldBuildHouse()) {
-            EntityProperties properties = playerView.getEntityProperties().get(builder.getEntityType());
-
             MoveAction moveAction = createMovingAction(status.getHouseTarget());
             BuildAction buildAction = createBuildAction(status.getHouseTarget());
 
@@ -69,7 +68,8 @@ public class BuilderUnitEntityActions {
         Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
 
         for (Entity resource : status.getResources()) {
-            if (distance(entity.getPosition(), resource.getPosition()) < distance(entity.getPosition(), target)) {
+            if (Utils.distance(entity.getPosition(), resource.getPosition()) <
+                Utils.distance(entity.getPosition(), target)) {
                 target = resource.getPosition();
             }
         }
@@ -78,17 +78,6 @@ public class BuilderUnitEntityActions {
         AttackAction attackAction = createAttackAction(properties);
 
         return new EntityAction( moveAction, null, attackAction, null );
-    }
-
-    private double distance(Vec2Int c1, Vec2Int c2) {
-        // distance between (0, 0) and (x, y)
-        int x1 = c1.getX();
-        int y1 = c1.getY();
-
-        int x2 = c1.getX();
-        int y2 = c1.getY();
-
-        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
     private RepairAction createRepairAction(Entity house) {

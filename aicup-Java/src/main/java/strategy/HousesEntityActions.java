@@ -4,7 +4,7 @@ import model.*;
 
 public class HousesEntityActions extends BaseEntityActions {
 
-    private Status status; // Statistics
+    private Status status;
 
     public HousesEntityActions(Status status) {
         this.status = status;
