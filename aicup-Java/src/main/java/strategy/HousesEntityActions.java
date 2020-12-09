@@ -2,7 +2,9 @@ package strategy;
 
 import model.*;
 
-public class HousesEntityActions extends BaseEntityActions {
+import java.util.List;
+
+public class HousesEntityActions {
 
     private Status status;
 
@@ -10,8 +12,24 @@ public class HousesEntityActions extends BaseEntityActions {
         this.status = status;
     }
 
-    @Override
-    protected AttackAction createAttackAction(PlayerView playerView, Entity entity, EntityProperties properties) {
+    // priority: attack, build, repair и move
+    public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
+        for (Entity entity : entities) {
+            EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
+
+            BuildAction buildAction = createBuildAction(entity, properties);
+            AttackAction attackAction = createAttackAction(entity, properties);
+
+            result.getEntityActions().put(entity.getId(), new EntityAction(
+                    null,
+                    buildAction,
+                    attackAction,
+                    null
+            ));
+        }
+    }
+
+    protected AttackAction createAttackAction(Entity entity, EntityProperties properties) {
         if (entity.getEntityType() == EntityType.TURRET) {
             EntityType[] validAutoAttackTargets =  new EntityType[0];
             return new AttackAction(null, new AutoAttack(properties.getSightRange(), validAutoAttackTargets));
@@ -19,8 +37,7 @@ public class HousesEntityActions extends BaseEntityActions {
         return null;
     }
 
-    @Override
-    protected BuildAction createBuildAction(PlayerView playerView, Entity entity, EntityProperties properties) {
+    protected BuildAction createBuildAction(Entity entity, EntityProperties properties) {
         if (properties.getBuild() != null) {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
