@@ -38,6 +38,11 @@ public class HousesEntityActions {
         if (properties.getBuild() != null) {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
+            int count = status.countOfEntityWithType(entityType);
+
+            if (entityType == EntityType.BUILDER_UNIT && count > 5 && count >= status.getPopulationUse() / 2) {
+                return null;
+            }
 
             if (status.getPopulationUse() < status.getPopulationProvide()) {
                 return new BuildAction(
