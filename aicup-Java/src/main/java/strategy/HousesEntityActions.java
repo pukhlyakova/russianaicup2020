@@ -4,10 +4,10 @@ import model.*;
 
 public class HousesEntityActions extends BaseEntityActions {
 
-    private Statistics statistics; // Statistics
+    private Status status; // Statistics
 
-    public HousesEntityActions(Statistics statistics) {
-        this.statistics = statistics;
+    public HousesEntityActions(Status status) {
+        this.status = status;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class HousesEntityActions extends BaseEntityActions {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
 
-            if (statistics.getPopulationUse() < statistics.getPopulationProvide()) {
+            if (status.getPopulationUse() < status.getPopulationProvide()) {
                 return new BuildAction(
                         entityType,
                         new Vec2Int(

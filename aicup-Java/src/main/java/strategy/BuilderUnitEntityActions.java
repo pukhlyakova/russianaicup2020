@@ -6,18 +6,9 @@ import java.util.List;
 
 public class BuilderUnitEntityActions {
 
-    private Statistics statistics; // word Statistics
-    private Status status; // current status
-    private List<Entity> brokenHouse; // list of buildings that should be repaired
-    private List<Entity> resources; // list of resources
+    private Status status;
 
-    public BuilderUnitEntityActions(List<Entity> brokenHouse,
-                                    List<Entity> resources,
-                                    Statistics statistics,
-                                    Status status) {
-        this.brokenHouse = brokenHouse;
-        this.resources = resources;
-        this.statistics = statistics;
+    public BuilderUnitEntityActions(Status status) {
         this.status = status;
     }
 
@@ -48,24 +39,24 @@ public class BuilderUnitEntityActions {
     }
 
     private void builderAction(List<Entity> entities, Action result, PlayerView playerView) {
-        if (status.getBuilderId() == null && statistics.getResource() < 100) {
+        if (status.getBuilderId() == null && status.getResource() < 100) {
             return;
         }
         Entity builder = findBuilder(entities);
 
-        if (!brokenHouse.isEmpty()) {
-            Entity house = brokenHouse.get(0);
+        if (!status.getBrokenHouses().isEmpty()) {
+            Entity house = status.getBrokenHouses().get(0);
 
             MoveAction moveAction = createMovingAction(house.getPosition());
             RepairAction repairAction = createRepairAction(house);
 
             EntityAction action = new EntityAction( moveAction, null, null, repairAction );
             result.getEntityActions().put(builder.getId(), action);
-        } else if (statistics.shouldBuildHouse()) {
+        } else if (status.shouldBuildHouse()) {
             EntityProperties properties = playerView.getEntityProperties().get(builder.getEntityType());
 
-            MoveAction moveAction = createMovingAction(statistics.getHouseTarget());
-            BuildAction buildAction = createBuildAction(statistics.getHouseTarget());
+            MoveAction moveAction = createMovingAction(status.getHouseTarget());
+            BuildAction buildAction = createBuildAction(status.getHouseTarget());
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
@@ -77,7 +68,7 @@ public class BuilderUnitEntityActions {
 
         Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
 
-        for (Entity resource : resources) {
+        for (Entity resource : status.getResources()) {
             if (distance(entity.getPosition(), resource.getPosition()) < distance(entity.getPosition(), target)) {
                 target = resource.getPosition();
             }

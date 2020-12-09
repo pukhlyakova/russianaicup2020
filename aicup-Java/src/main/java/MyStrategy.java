@@ -5,38 +5,29 @@ import java.util.*;
 
 
 public class MyStrategy {
-    private Status status; // current status.
-    private Statistics statistics; // world statistic
+    private Status status;
 
     public MyStrategy() {
         this.status = new Status();
-        this.statistics = new Statistics();
     }
 
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
         Action result = new Action(new java.util.HashMap<>());
 
         int myId = playerView.getMyId();
-        List<Entity> resources = new ArrayList<>();
+
         List<Entity> builders = new ArrayList<>();
         List<Entity> fighters = new ArrayList<>();
-        List<Entity> others = new ArrayList<>();
         List<Entity> houses = new ArrayList<>();
-        List<Entity> brokenHouses = new ArrayList<>();
 
-        statistics.updateStatistics(playerView);
+        status.updateStatus(playerView);
 
         for (Entity entity : playerView.getEntities()) {
             if (entity.getPlayerId() == null || entity.getPlayerId() != myId) {
                 continue;
             }
 
-            EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
-
             switch (entity.getEntityType()) {
-                case RESOURCE:
-                    resources.add(entity);
-                    break;
                 case BUILDER_UNIT:
                     builders.add(entity);
                     break;
@@ -50,25 +41,18 @@ public class MyStrategy {
                 case MELEE_BASE:
                 case RANGED_BASE:
                 case TURRET:
-                    if (entity.getHealth() < properties.getMaxHealth()) {
-                        brokenHouses.add(entity);
-                    }
                     houses.add(entity);
                     break;
+                case RESOURCE:
                 default:
-                    others.add(entity);
                     break;
             }
         }
 
-        BaseEntityActions baseEntityActions = new BaseEntityActions();
-        HousesEntityActions housesEntityActions = new HousesEntityActions(statistics);
+        HousesEntityActions housesEntityActions = new HousesEntityActions(status);
         FighterEntityActions fighterEntityActions = new FighterEntityActions();
-        BuilderUnitEntityActions builderUnitEntityActions = new BuilderUnitEntityActions(brokenHouses,
-                                                                                         resources,
-                                                                                         statistics,
-                                                                                         status);
-        baseEntityActions.addEntityActions(playerView, others, result);
+        BuilderUnitEntityActions builderUnitEntityActions = new BuilderUnitEntityActions(status);
+
         housesEntityActions.addEntityActions(playerView, houses, result);
         fighterEntityActions.addEntityActions(playerView, fighters, result);
         builderUnitEntityActions.addEntityActions(playerView, builders, result);
