@@ -144,9 +144,13 @@ public class Status {
     }
 
     public Vec2Int findHouseTarget(int x, int y) {
-        boolean found = true;
+        boolean found;
+
+        int targetX = mapSize - 1;
+        int targetY = mapSize - 1;
 
         int spaceSize = houseSize + 2; // need space to stay and to move
+        Vec2Int zero = new Vec2Int(0, 0);
 
         for (int i = 0; i < mapSize / 2; i++) {
             for (int j = 0; j < mapSize / 2; j++) {
@@ -158,18 +162,15 @@ public class Status {
                         }
                     }
                 }
-                if (found) {
-                    x = i;
-                    y = j;
-                    break;
+                if (found && Utils.distance(zero, new Vec2Int(i, j)) <
+                             Utils.distance(zero, new Vec2Int(targetX, targetY))) {
+                    targetX = i;
+                    targetY = j;
                 }
-            }
-            if (found) {
-                break;
             }
         }
 
-        return new Vec2Int(x, y);
+        return new Vec2Int(targetX, targetY);
     }
 
     private boolean isHouse(EntityType type) {
