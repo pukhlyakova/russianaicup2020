@@ -15,15 +15,18 @@ public class FighterEntityActions {
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         int mapSize = status.getMapSize();
+        int quarter = mapSize / 4;
 
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
+            int attackRange = properties.getAttack().getAttackRange() - 1;
 
             Entity target = findTarget(entity);
-            Vec2Int position = new Vec2Int(mapSize / 4, mapSize / 4);
+            Vec2Int position = new Vec2Int(quarter, quarter);
             if (entities.size() >= 10 ||
-                (target != null && Utils.distance(entity.getPosition(), target.getPosition()) < 5)) {
-                position = target.getPosition();
+                (target != null && Utils.distance(entity.getPosition(), target.getPosition()) < quarter)) {
+                position = new Vec2Int(target.getPosition().getX() - attackRange,
+                                       target.getPosition().getY() - attackRange);
             }
 
             MoveAction moveAction = createMovingAction(position);
