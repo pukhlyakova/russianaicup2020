@@ -2,25 +2,25 @@ package strategy;
 
 import model.*;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public class BuilderUnitEntityActions {
 
     private Status status;
 
-    private Set<Integer> housesWithBuilder;
+    private Map<Integer, Entity> builderToHouse;
 
     public BuilderUnitEntityActions(Status status) {
         this.status = status;
-        this.housesWithBuilder = new HashSet<>();
+        this.builderToHouse = new HashMap<>();
     }
 
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
-        // clear housesWithBuilder
-        housesWithBuilder.clear();
+        // update builderToHouse
+        updateBuilderToHouse(entities);
 
         // add new builder if you need
         if (status.needNewBuilder()) {
@@ -46,10 +46,9 @@ public class BuilderUnitEntityActions {
     }
 
     private void builderAction(Entity builder, Action result) {
-        Entity house = nearestHouseForRepairs(builder);
+        Entity house = builderToHouse.getOrDefault(builder.getId(), null);
 
         if (house != null) {
-            this.housesWithBuilder.add(house.getId());
             MoveAction moveAction = createMovingAction(house.getPosition());
             RepairAction repairAction = createRepairAction(house);
 
@@ -64,19 +63,25 @@ public class BuilderUnitEntityActions {
         }
     }
 
-    private Entity nearestHouseForRepairs(Entity builder) {
-        Entity house = null;
-        for (Entity entity : status.getBrokenHouses()) {
-            if (this.housesWithBuilder.contains(entity.getId())) {
-                continue;
+    private void updateBuilderToHouse(List<Entity> entities) {
+        builderToHouse.clear();
+
+        for (Entity house : status.getBrokenHouses()) {
+            Entity builder = null;
+
+            for (Entity entity : entities) {
+                if (!status.getBuilderIds().contains(entity.getId())) {
+                    continue;
+                }
+                if (builder == null || Utils.distance(house.getPosition(), entity.getPosition()) <
+                                       Utils.distance(house.getPosition(), builder.getPosition())) {
+                    builder = entity;
+                }
             }
-            if (house == null ||
-                    Utils.distance(builder.getPosition(), entity.getPosition()) <
-                    Utils.distance(builder.getPosition(), house.getPosition())) {
-                house = entity;
+            if (builder != null) {
+                builderToHouse.put(builder.getId(), house);
             }
         }
-        return house;
     }
 
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
