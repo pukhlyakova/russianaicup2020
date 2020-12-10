@@ -15,15 +15,20 @@ public class FighterEntityActions {
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         int mapSize = status.getMapSize();
-        int quarter = mapSize / 4;
+        int half = mapSize / 2;
+
+        Entity closes2Center = findTarget(new Vec2Int(0, 0));
 
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-            Entity target = findTarget(entity);
-            Vec2Int position = new Vec2Int(quarter, quarter);
-            if (entities.size() >= 10 ||
-                (target != null && Utils.distance(entity.getPosition(), target.getPosition()) < quarter)) {
+            Entity target = findTarget(entity.getPosition());
+            Vec2Int position = new Vec2Int(mapSize / 4, mapSize / 4);
+
+            if (entities.size() < 10 && Utils.distance(new Vec2Int(0, 0), closes2Center.getPosition()) < half) {
+                position = closes2Center.getPosition();
+            }
+            if (entities.size() >= 10) {
                 position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
             }
 
@@ -37,13 +42,12 @@ public class FighterEntityActions {
         }
     }
 
-    private Entity findTarget(Entity entity) {
+    private Entity findTarget(Vec2Int pos) {
         Entity target = null;
 
         for (Entity enemy : status.getEnemies()) {
-            if (target == null ||
-                    Utils.distance(entity.getPosition(), enemy.getPosition()) <
-                    Utils.distance(entity.getPosition(), target.getPosition())) {
+            if (target == null || Utils.distance(pos, enemy.getPosition()) <
+                                  Utils.distance(pos, target.getPosition())) {
                 target = enemy;
             }
         }
