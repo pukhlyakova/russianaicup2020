@@ -14,12 +14,19 @@ public class FighterEntityActions {
 
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
+        int mapSize = status.getMapSize();
+
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
             Entity target = findTarget(entity);
+            Vec2Int position = new Vec2Int(mapSize / 4, mapSize / 4);
+            if (entities.size() >= 10 ||
+                (target != null && Utils.distance(entity.getPosition(), target.getPosition()) < 5)) {
+                position = target.getPosition();
+            }
 
-            MoveAction moveAction = createMovingAction(target);
+            MoveAction moveAction = createMovingAction(position);
             AttackAction attackAction = createAttackAction(target, properties);
 
             result.getEntityActions().put(entity.getId(), new EntityAction(moveAction,
@@ -42,10 +49,8 @@ public class FighterEntityActions {
         return target;
     }
 
-    private MoveAction createMovingAction(Entity target) {
-        return new MoveAction(target == null ? new Vec2Int(0, 0) : target.getPosition(),
-                              true,
-                              true);
+    private MoveAction createMovingAction(Vec2Int position) {
+        return new MoveAction(position, true, true);
     }
 
     private AttackAction createAttackAction(Entity target, EntityProperties properties) {

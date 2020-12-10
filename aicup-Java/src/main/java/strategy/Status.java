@@ -243,4 +243,8 @@ public class Status {
     public Set<Integer> getBuilderIds() {
         return builderIds;
     }
+
+    public int getMapSize() {
+        return mapSize;
+    }
 }
