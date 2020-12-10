@@ -19,14 +19,12 @@ public class FighterEntityActions {
 
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
-            int attackRange = properties.getAttack().getAttackRange() - 1;
 
             Entity target = findTarget(entity);
             Vec2Int position = new Vec2Int(quarter, quarter);
             if (entities.size() >= 10 ||
                 (target != null && Utils.distance(entity.getPosition(), target.getPosition()) < quarter)) {
-                position = new Vec2Int(target.getPosition().getX() - attackRange,
-                                       target.getPosition().getY() - attackRange);
+                position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
             }
 
             MoveAction moveAction = createMovingAction(position);
