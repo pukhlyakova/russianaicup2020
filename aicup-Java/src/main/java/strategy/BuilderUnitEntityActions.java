@@ -2,21 +2,31 @@ package strategy;
 
 import model.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BuilderUnitEntityActions {
 
     private Status status;
 
+    private Set<Integer> housesWithBuilder;
+
     public BuilderUnitEntityActions(Status status) {
         this.status = status;
+        this.housesWithBuilder = new HashSet<>();
     }
 
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
+        // clear housesWithBuilder
+        housesWithBuilder.clear();
+
+        // add new builder if you need
         if (status.needNewBuilder()) {
             addNewBuilder(entities);
         }
+
         for (Entity entity : entities) {
             if (status.getBuilderIds().contains(entity.getId())) {
                 builderAction(entity, result);
@@ -36,9 +46,10 @@ public class BuilderUnitEntityActions {
     }
 
     private void builderAction(Entity builder, Action result) {
-        if (!status.getBrokenHouses().isEmpty()) {
-            Entity house = nearestHouseForRepairs(builder);
+        Entity house = nearestHouseForRepairs(builder);
 
+        if (house != null) {
+            this.housesWithBuilder.add(house.getId());
             MoveAction moveAction = createMovingAction(house.getPosition());
             RepairAction repairAction = createRepairAction(house);
 
@@ -56,6 +67,9 @@ public class BuilderUnitEntityActions {
     private Entity nearestHouseForRepairs(Entity builder) {
         Entity house = null;
         for (Entity entity : status.getBrokenHouses()) {
+            if (this.housesWithBuilder.contains(entity.getId())) {
+                continue;
+            }
             if (house == null ||
                     Utils.distance(builder.getPosition(), entity.getPosition()) <
                     Utils.distance(builder.getPosition(), house.getPosition())) {

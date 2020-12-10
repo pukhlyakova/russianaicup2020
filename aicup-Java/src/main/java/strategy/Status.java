@@ -206,7 +206,7 @@ public class Status {
         if (builderIds.size() == 0 && resource > 100) {
             return true;
         }
-        if (builderIds.size() == 1 && resource > 250) {
+        if (builderIds.size() == 1 && resource > 200) {
             return true;
         }
         return false;
