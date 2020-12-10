@@ -2,10 +2,7 @@ package strategy;
 
 import model.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Status {
     private int resource; // count of resource
@@ -195,19 +192,24 @@ public class Status {
         return entityTypeCount[entityType.tag];
     }
 
-    public boolean shouldBuildHouse() {
-        return true;
+    public int distanceForRepair() {
+        // If we have a lot of money, build a house and let other builders repair it.
+        // If we don't have enough money, we build and repair it ourselves.
+        /*
+        if (resource < 500) {
+            return 4;
+        } else {
+            return 2;
+        }
+         */
+        return 4;
     }
 
     public boolean needNewBuilder() {
-        if (builderIds.size() == 0 && resource >  100) {
+        if (builderIds.size() == 0 && resource > 100) {
             return true;
         }
         return false;
-    }
-
-    public boolean isPosEmpty(int x, int y) {
-        return map[x][y] == 0;
     }
 
     public int getResource() {
