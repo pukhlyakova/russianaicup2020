@@ -56,7 +56,7 @@ public class BuilderUnitEntityActions {
             result.getEntityActions().put(builder.getId(), action);
         } else if (status.shouldBuildHouse()) {
             MoveAction moveAction = createMovingAction(status.getHouseTarget());
-            BuildAction buildAction = createBuildAction(builder);
+            BuildAction buildAction = createBuildAction(builder, status.getHouseTarget());
 
             EntityAction action = new EntityAction( moveAction, buildAction, null, null );
             result.getEntityActions().put(builder.getId(), action);
@@ -105,8 +105,8 @@ public class BuilderUnitEntityActions {
         return new RepairAction(house.getId());
     }
 
-    private BuildAction createBuildAction(Entity builder) {
-        Vec2Int buildAt = new Vec2Int(builder.getPosition().getX(), builder.getPosition().getY() + 1);
+    private BuildAction createBuildAction(Entity builder, Vec2Int housePos) {
+        Vec2Int buildAt = new Vec2Int(housePos.getX(), housePos.getY() + 1);
         return new BuildAction(EntityType.HOUSE, buildAt);
     }
 

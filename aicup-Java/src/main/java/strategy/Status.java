@@ -200,17 +200,9 @@ public class Status {
     }
 
     public boolean needNewBuilder() {
-        if (builderIds.size() == countOfEntityWithType(EntityType.BUILDER_UNIT)) {
-            return false;
-        }
         if (builderIds.size() == 0 && resource >  100) {
             return true;
         }
-        /*
-        if (builderIds.size() == 1 && resource > 200) {
-            return true;
-        }
-         */
         return false;
     }
 
