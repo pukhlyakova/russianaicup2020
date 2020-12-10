@@ -206,7 +206,7 @@ public class Status {
     }
 
     public boolean needNewBuilder() {
-        if (builderIds.size() == 0 && populationUse == populationProvide) {
+        if (builderIds.size() == 0 && populationProvide - populationUse < 2) {
             return true;
         }
         return false;

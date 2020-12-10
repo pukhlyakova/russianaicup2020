@@ -97,10 +97,17 @@ public class BuilderUnitEntityActions {
 
         Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
 
+        // collected by other builder
+        HashSet<Integer> collected = new HashSet<>();
+
         for (Entity resource : status.getResources()) {
+            if (collected.contains(resource.getId())) {
+                continue;
+            }
             if (Utils.distance(entity.getPosition(), resource.getPosition()) <
                 Utils.distance(entity.getPosition(), target)) {
                 target = resource.getPosition();
+                collected.add(resource.getId());
             }
         }
         MoveAction moveAction = createMovingAction(target);
