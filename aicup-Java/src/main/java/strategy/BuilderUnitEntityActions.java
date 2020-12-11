@@ -10,9 +10,12 @@ public class BuilderUnitEntityActions {
 
     private Map<Integer, Entity> builderToHouse;
 
+    private HashSet<Integer> collectedResourceId;
+
     public BuilderUnitEntityActions(Status status) {
         this.status = status;
         this.builderToHouse = new HashMap<>();
+        this.collectedResourceId = new HashSet<>();
     }
 
     // priority: attack, build, repair and move
@@ -95,20 +98,24 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
+        Vec2Int zeroPoint = new Vec2Int(0, 0);
 
-        // collected by other builder
-        HashSet<Integer> collected = new HashSet<>();
+        // target info
+        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
+        int targetId = -1;
 
         for (Entity resource : status.getResources()) {
-            if (collected.contains(resource.getId())) {
+            if (collectedResourceId.contains(resource.getId())) {
                 continue;
             }
-            if (Utils.distance(entity.getPosition(), resource.getPosition()) <
-                Utils.distance(entity.getPosition(), target)) {
+
+            if (Utils.distance(zeroPoint, resource.getPosition()) <  Utils.distance(zeroPoint, target)) {
                 target = resource.getPosition();
-                collected.add(resource.getId());
+                targetId = resource.getId();
             }
+        }
+        if (targetId != -1) {
+            collectedResourceId.add(targetId);
         }
         MoveAction moveAction = createMovingAction(target);
         AttackAction attackAction = createAttackAction(properties);
