@@ -6,6 +6,8 @@ import java.util.List;
 
 public class FighterEntityActions {
 
+    private final static int WAIT_COUNT = 20;
+
     private Status status;
 
     public FighterEntityActions(Status status) {
@@ -25,10 +27,10 @@ public class FighterEntityActions {
             Entity target = findTarget(entity.getPosition());
             Vec2Int position = new Vec2Int(mapSize / 4, mapSize / 4);
 
-            if (entities.size() < 10 && Utils.distance(new Vec2Int(0, 0), closes2Center.getPosition()) < half) {
+            if (entities.size() < WAIT_COUNT && Utils.distance(new Vec2Int(0, 0), closes2Center.getPosition()) < half) {
                 position = closes2Center.getPosition();
             }
-            if (entities.size() >= 10) {
+            if (entities.size() >= WAIT_COUNT) {
                 position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
             }
 
