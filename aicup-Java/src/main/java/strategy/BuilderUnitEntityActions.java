@@ -98,8 +98,6 @@ public class BuilderUnitEntityActions {
     private EntityAction collectResources(PlayerView playerView, Entity entity) {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
-        Vec2Int zeroPoint = new Vec2Int(0, 0);
-
         // target info
         Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
         int targetId = -1;
@@ -109,7 +107,8 @@ public class BuilderUnitEntityActions {
                 continue;
             }
 
-            if (Utils.distance(zeroPoint, resource.getPosition()) <  Utils.distance(zeroPoint, target)) {
+            if (Utils.distance(entity.getPosition(), resource.getPosition()) <
+                Utils.distance(entity.getPosition(), target)) {
                 target = resource.getPosition();
                 targetId = resource.getId();
             }
