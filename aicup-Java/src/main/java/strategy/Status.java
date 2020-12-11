@@ -196,7 +196,7 @@ public class Status {
     public int distanceForRepair() {
         // If we have a lot of money, build a house and let other builders repair it.
         // If we don't have enough money, we build and repair it ourselves.
-        if (resource < 500) {
+        if (resource < 250) {
             return 4;
         } else {
             return 2;
