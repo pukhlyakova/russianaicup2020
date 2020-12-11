@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FighterEntityActions {
 
-    private final static int WAIT_COUNT = 20;
+    private final static int WAIT_COUNT = 25;
 
     private Status status;
 
