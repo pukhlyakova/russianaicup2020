@@ -40,7 +40,13 @@ public class HousesEntityActions {
             EntityType entityType = properties.getBuild().getOptions()[0];
             int count = status.countOfEntityWithType(entityType);
 
-            if (entityType == EntityType.BUILDER_UNIT && count > 10 && count >= status.getPopulationUse() / 2) {
+            // if we have less than 10 builders do not build fighters
+            if (entityType != EntityType.BUILDER_UNIT && status.countOfEntityWithType(EntityType.BUILDER_UNIT) < 10) {
+                return null;
+            }
+
+            // Do not build builders when you have 50 of them
+            if (entityType == EntityType.BUILDER_UNIT && count >= 50) {
                 return null;
             }
 
