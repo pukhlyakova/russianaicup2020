@@ -46,7 +46,7 @@ public class HousesEntityActions {
             }
 
             // Do not build builders when you have 50 of them
-            if (entityType == EntityType.BUILDER_UNIT && count >= 50) {
+            if (entityType == EntityType.BUILDER_UNIT && status.getResource() >= 500) {
                 return null;
             }
 
