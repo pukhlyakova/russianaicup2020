@@ -23,17 +23,15 @@ public class BuilderUnitEntityActions {
         // update builderToHouse
         updateBuilderToHouse(entities);
 
-        // add new builder if you need
-        if (status.needNewBuilder()) {
-            addNewBuilder(entities);
-        }
+        // builder
+        int builderId = findBuilder(entities);
 
         for (Entity entity : entities) {
             if (builderToHouse.containsKey(entity.getId())) {
                 result.getEntityActions().put(entity.getId(), repairHouse(builderToHouse.get(entity.getId())));
                 continue;
             }
-            if (status.getBuilderIds().contains(entity.getId())) {
+            if (entity.getId() == builderId) {
                 result.getEntityActions().put(entity.getId(), builderAction());
                 continue;
             }
@@ -44,42 +42,39 @@ public class BuilderUnitEntityActions {
     private void updateBuilderToHouse(List<Entity> entities) {
         builderToHouse.clear();
 
-        Set<Integer> housesWithBuilder = new HashSet<>();
-
-        // builders
-        for (Entity entity : entities) {
-            if (status.getBuilderIds().contains(entity.getId())) {
-                for (Entity house : status.getBrokenHouses()) {
-                    if (Utils.distance(entity.getPosition(), house.getPosition()) <= status.distanceForRepair()) {
-                        builderToHouse.put(entity.getId(), house);
-                        housesWithBuilder.add(house.getId());
-                        break;
-                    }
-                }
-            }
-        }
-
-        // we have houses that broken because of attack
-        if (housesWithBuilder.size() < status.getBrokenHouses().size()) {
-            for (Entity house : status.getBrokenHouses()) {
-                if (housesWithBuilder.contains(house.getId())) {
+        for (Entity house : status.getBrokenHouses()) {
+            Entity builder = null;
+            for (Entity entity : entities) {
+                if (builderToHouse.containsKey(entity.getId())) {
                     continue;
                 }
-                Entity builder = null;
-                for (Entity entity : entities) {
-                    if (status.getBuilderIds().contains(entity.getId())) {
-                        continue;
-                    }
-                    if (builder == null || Utils.distance(house.getPosition(), entity.getPosition()) <
-                            Utils.distance(house.getPosition(), builder.getPosition())) {
-                        builder = entity;
-                    }
+                if (builder == null || Utils.distance(house.getPosition(), entity.getPosition()) <
+                                       Utils.distance(house.getPosition(), builder.getPosition())) {
+                    builder = entity;
                 }
-                if (builder != null) {
-                    builderToHouse.put(builder.getId(), house);
+            }
+            if (builder != null) {
+                builderToHouse.put(builder.getId(), house);
+            }
+        }
+    }
+
+    private int findBuilder(List<Entity> entities) {
+        Entity builder = null;
+        Vec2Int target = status.getHouseTarget();
+
+        if (status.getPopulationProvide() - status.getPopulationUse() <= 1 || status.getResource() > 50) {
+            for (Entity entity : entities) {
+                if (builderToHouse.containsKey(entity.getId())) {
+                    continue;
+                }
+                if (builder == null || Utils.distance(entity.getPosition(), target) <
+                        Utils.distance(builder.getPosition(), target)) {
+                    builder = entity;
                 }
             }
         }
+        return builder == null ? -1 : builder.getId();
     }
 
     private EntityAction builderAction() {
@@ -120,15 +115,6 @@ public class BuilderUnitEntityActions {
         AttackAction attackAction = createAttackAction(properties);
 
         return new EntityAction( moveAction, null, attackAction, null );
-    }
-
-    private void addNewBuilder(List<Entity> entities) {
-        for (Entity entity : entities) {
-            if (!status.getBuilderIds().contains(entity.getId())) {
-                status.getBuilderIds().add(entity.getId());
-                break;
-            }
-        }
     }
 
     private RepairAction createRepairAction(Entity house) {

@@ -10,7 +10,6 @@ public class Status {
     private int populationProvide; // population that buildings provide
     private int houseSize; // size of house
     private int mapSize; // size of map
-    private Set<Integer> builderIds; // ids of builder who NOT collect resources, only build
 
     private static final int ENTITY_TYPE_COUNT = 10;
 
@@ -31,7 +30,6 @@ public class Status {
         resources = new ArrayList<>();
         brokenHouses = new ArrayList<>();
         enemies = new ArrayList<>();
-        builderIds = new HashSet<>();
     }
 
     public void updateStatus(PlayerView playerView) {
@@ -68,9 +66,6 @@ public class Status {
             entityTypeCount[i] = 0;
         }
 
-        // tmp builderIds
-        Set<Integer> newBuilderIds = new HashSet<>();
-
         for (Entity entity : playerView.getEntities()) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
@@ -86,11 +81,6 @@ public class Status {
                 continue;
             }
 
-            // builderIds can contains dead builders.
-            if (builderIds.contains(entity.getId())) {
-                newBuilderIds.add(entity.getId());
-            }
-
             if (isHouse(entity.getEntityType()) && entity.getHealth() < properties.getMaxHealth()) {
                 brokenHouses.add(entity);
             }
@@ -102,15 +92,9 @@ public class Status {
 
             entityTypeCount[entity.getEntityType().tag]++;
         }
-
-        // update builderIds
-        builderIds.clear();
-        builderIds.addAll(newBuilderIds);
     }
 
     private void fillMap(PlayerView playerView) {
-        int mapSize = playerView.getMapSize();
-
         // create or clear map
         if (map == null) {
             map = new int[mapSize][mapSize];
@@ -140,10 +124,10 @@ public class Status {
     }
 
     private void updateHouseTarget() {
-        houseTarget = findHouseTarget(0, 0);
+        houseTarget = findHouseTarget();
     }
 
-    public Vec2Int findHouseTarget(int x, int y) {
+    public Vec2Int findHouseTarget() {
         boolean found;
 
         int targetX = mapSize - 1;
@@ -193,23 +177,6 @@ public class Status {
         return entityTypeCount[entityType.tag];
     }
 
-    public int distanceForRepair() {
-        // If we have a lot of money, build a house and let other builders repair it.
-        // If we don't have enough money, we build and repair it ourselves.
-        if (resource < 250) {
-            return 4;
-        } else {
-            return 2;
-        }
-    }
-
-    public boolean needNewBuilder() {
-        if (builderIds.size() == 0 && populationProvide - populationUse < 2) {
-            return true;
-        }
-        return false;
-    }
-
     public int getResource() {
         return resource;
     }
@@ -236,10 +203,6 @@ public class Status {
 
     public List<Entity> getEnemies() {
         return enemies;
-    }
-
-    public Set<Integer> getBuilderIds() {
-        return builderIds;
     }
 
     public int getMapSize() {
