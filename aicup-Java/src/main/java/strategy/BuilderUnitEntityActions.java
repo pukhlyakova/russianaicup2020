@@ -95,8 +95,9 @@ public class BuilderUnitEntityActions {
     }
 
     private EntityAction builderAction() {
-        MoveAction moveAction = createMovingAction(status.getHouseTarget());
-        BuildAction buildAction = createBuildAction(status.getHouseTarget());
+        Vec2Int pos = status.getHouseTarget();
+        MoveAction moveAction = createMovingAction(new Vec2Int(pos.getX() + 1, pos.getY()));
+        BuildAction buildAction = createBuildAction(new Vec2Int(pos.getX() + 1, pos.getY() + 1));
         return new EntityAction( moveAction, buildAction, null, null );
     }
 
@@ -139,7 +140,7 @@ public class BuilderUnitEntityActions {
     }
 
     private BuildAction createBuildAction(Vec2Int housePos) {
-        Vec2Int buildAt = new Vec2Int(housePos.getX(), housePos.getY() + 1);
+        Vec2Int buildAt = new Vec2Int(housePos.getX(), housePos.getY());
         return new BuildAction(EntityType.HOUSE, buildAt);
     }
 
