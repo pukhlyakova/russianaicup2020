@@ -63,7 +63,7 @@ public class BuilderUnitEntityActions {
         Entity builder = null;
         Vec2Int target = status.getHouseTarget();
 
-        if (status.getPopulationProvide() - status.getPopulationUse() <= 1 || status.getResource() > 50) {
+        if (needNewHouse()) {
             for (Entity entity : entities) {
                 if (builderToHouse.containsKey(entity.getId())) {
                     continue;
@@ -75,6 +75,23 @@ public class BuilderUnitEntityActions {
             }
         }
         return builder == null ? -1 : builder.getId();
+    }
+
+    private boolean needNewHouse() {
+        int count = 0;
+        for (Entity house : status.getBrokenHouses()) {
+            if (!house.isActive()) {
+                ++count;
+            }
+        }
+
+        //to many broken houses
+        if (count >= 3) {
+            return false;
+        }
+
+        return status.getPopulationProvide() - status.getPopulationUse() <= 1 ||
+               status.getResource() > 100;
     }
 
     private EntityAction builderAction() {
