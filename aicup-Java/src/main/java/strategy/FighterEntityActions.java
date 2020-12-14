@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FighterEntityActions {
 
-    private final static int WAIT_COUNT = 50;
+    private final static int WAIT_COUNT = 30;
 
     private Status status;
 
@@ -18,6 +18,7 @@ public class FighterEntityActions {
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         int mapSize = status.getMapSize();
         int half = mapSize / 2;
+        int basePose = mapSize / 4 + mapSize / 8;
 
         Entity closes2Center = findTarget(new Vec2Int(0, 0));
 
@@ -25,12 +26,15 @@ public class FighterEntityActions {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
             Entity target = findTarget(entity.getPosition());
-            Vec2Int position = new Vec2Int(mapSize / 4, mapSize / 4);
+            Vec2Int position = new Vec2Int(basePose, basePose);
 
-            if (entities.size() < WAIT_COUNT && Utils.distance(new Vec2Int(0, 0), closes2Center.getPosition()) < half) {
+            if (entities.size() < WAIT_COUNT &&
+                closes2Center != null &&
+                Utils.distance(new Vec2Int(0, 0), closes2Center.getPosition()) < half) {
+
                 position = closes2Center.getPosition();
             }
-            if (entities.size() >= WAIT_COUNT) {
+            if (entities.size() >= WAIT_COUNT && target != null) {
                 position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
             }
 
@@ -61,6 +65,9 @@ public class FighterEntityActions {
     }
 
     private AttackAction createAttackAction(Entity target, EntityProperties properties) {
-        return new AttackAction(target == null ? null : target.getId(), new AutoAttack(properties.getSightRange(), new EntityType[0]));
+        int pathfindRange = properties.getSightRange() + 2;
+
+        return new AttackAction(target == null ? null : target.getId(),
+                                new AutoAttack(pathfindRange, new EntityType[0]));
     }
 }

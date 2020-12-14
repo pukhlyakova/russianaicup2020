@@ -8,7 +8,8 @@ public class Status {
     private int resource; // count of resource
     private int populationUse; // population that user use
     private int populationProvide; // population that buildings provide
-    private int houseSize; // size of house
+    private int houseSize; // size of HOUSE
+    private int baseSize; // size of BUILDER_BASE, RANGED_BASE and MELEE_BASE
     private int mapSize; // size of map
 
     private static final int ENTITY_TYPE_COUNT = 10;
@@ -17,7 +18,9 @@ public class Status {
 
     private int[][] map; // contains EntityType.tag + 1, because 0 is for empty
 
-    private Vec2Int houseTarget; // coordinates for the construction of new building
+    private Vec2Int houseTarget; // coordinates for the construction of HOUSE
+
+    private Vec2Int bigBuildingTarget; // coordinates for the construction BUILDER_BASE, RANGED_BASE and MELEE_BASE
 
     private List<Entity> resources; // list of resources
 
@@ -38,6 +41,7 @@ public class Status {
         // save sizes
         mapSize = playerView.getMapSize();
         houseSize = playerView.getEntityProperties().get(EntityType.HOUSE).getSize();
+        baseSize = playerView.getEntityProperties().get(EntityType.BUILDER_BASE).getSize();
 
         // clear
         resources.clear();
@@ -47,8 +51,9 @@ public class Status {
         // fill map
         fillMap(playerView);
 
-        // update house target coordinates.
+        // update buildings target coordinates.
         updateHouseTarget();
+        updateBigBuildingTarget();
 
         // save resource info
         for (Player player : playerView.getPlayers()) {
@@ -124,16 +129,20 @@ public class Status {
     }
 
     private void updateHouseTarget() {
-        houseTarget = findHouseTarget();
+        houseTarget = findHouseTarget(houseSize);
     }
 
-    public Vec2Int findHouseTarget() {
+    private void updateBigBuildingTarget() {
+        bigBuildingTarget = findHouseTarget(baseSize);
+    }
+
+    public Vec2Int findHouseTarget(int buildingSize) {
         boolean found;
 
         int targetX = mapSize - 1;
         int targetY = mapSize - 1;
 
-        int spaceSize = houseSize + 2; // need space to stay and to move
+        int spaceSize = buildingSize + 2; // need space to stay and to move
         Vec2Int zero = new Vec2Int(0, 0);
 
         for (int i = 0; i < mapSize / 2; i++) {
@@ -191,6 +200,10 @@ public class Status {
 
     public Vec2Int getHouseTarget() {
         return houseTarget;
+    }
+
+    public Vec2Int getBigBuildingTarget() {
+        return bigBuildingTarget;
     }
 
     public List<Entity> getResources() {

@@ -24,7 +24,10 @@ public class BuilderUnitEntityActions {
         updateBuilderToHouse(entities);
 
         // builder
-        int builderId = findBuilder(entities);
+        EntityType targetType = getBuildingType();
+        Vec2Int target = getBuildingTarget(targetType);
+
+        int builderId = findBuilder(targetType, target, entities);
 
         for (Entity entity : entities) {
             if (builderToHouse.containsKey(entity.getId())) {
@@ -32,7 +35,7 @@ public class BuilderUnitEntityActions {
                 continue;
             }
             if (entity.getId() == builderId) {
-                result.getEntityActions().put(entity.getId(), builderAction());
+                result.getEntityActions().put(entity.getId(), builderAction(targetType, target));
                 continue;
             }
             result.getEntityActions().put(entity.getId(), collectResources(playerView, entity));
@@ -59,22 +62,51 @@ public class BuilderUnitEntityActions {
         }
     }
 
-    private int findBuilder(List<Entity> entities) {
+    private int findBuilder(EntityType targetType, Vec2Int target, List<Entity> entities) {
         Entity builder = null;
-        Vec2Int target = status.getHouseTarget();
 
-        if (needNewHouse()) {
+        if (targetType != null) {
             for (Entity entity : entities) {
                 if (builderToHouse.containsKey(entity.getId())) {
                     continue;
                 }
                 if (builder == null || Utils.distance(entity.getPosition(), target) <
-                        Utils.distance(builder.getPosition(), target)) {
+                                       Utils.distance(builder.getPosition(), target)) {
                     builder = entity;
                 }
             }
         }
         return builder == null ? -1 : builder.getId();
+    }
+
+    private EntityType getBuildingType() {
+        if (needBuilderBase()) {
+            return EntityType.BUILDER_BASE;
+        } else if (needRangedBase()) {
+            return EntityType.RANGED_BASE;
+        } else if (needNewHouse()) {
+            return EntityType.HOUSE;
+        } else {
+            return null;
+        }
+    }
+
+    private Vec2Int getBuildingTarget(EntityType type) {
+        if (type == EntityType.BUILDER_BASE || type == EntityType.RANGED_BASE) {
+            return status.getBigBuildingTarget();
+        } else if (type == EntityType.HOUSE) {
+            return status.getHouseTarget();
+        } else {
+            return null;
+        }
+    }
+
+    private boolean needBuilderBase() {
+        return status.countOfEntityWithType(EntityType.BUILDER_BASE) == 0;
+    }
+
+    private boolean needRangedBase() {
+        return status.countOfEntityWithType(EntityType.RANGED_BASE) == 0 && status.getResource() > 500;
     }
 
     private boolean needNewHouse() {
@@ -94,10 +126,9 @@ public class BuilderUnitEntityActions {
                status.getResource() > 100;
     }
 
-    private EntityAction builderAction() {
-        Vec2Int pos = status.getHouseTarget();
-        MoveAction moveAction = createMovingAction(new Vec2Int(pos.getX() + 1, pos.getY()));
-        BuildAction buildAction = createBuildAction(new Vec2Int(pos.getX() + 1, pos.getY() + 1));
+    private EntityAction builderAction(EntityType targetType, Vec2Int target) {
+        MoveAction moveAction = createMovingAction(new Vec2Int(target.getX() + 1, target.getY()));
+        BuildAction buildAction = createBuildAction(targetType, new Vec2Int(target.getX() + 1, target.getY() + 1));
         return new EntityAction( moveAction, buildAction, null, null );
     }
 
@@ -139,9 +170,9 @@ public class BuilderUnitEntityActions {
         return new RepairAction(house.getId());
     }
 
-    private BuildAction createBuildAction(Vec2Int housePos) {
+    private BuildAction createBuildAction(EntityType targetType, Vec2Int housePos) {
         Vec2Int buildAt = new Vec2Int(housePos.getX(), housePos.getY());
-        return new BuildAction(EntityType.HOUSE, buildAt);
+        return new BuildAction(targetType, buildAt);
     }
 
     private MoveAction createMovingAction(Vec2Int pos) {
