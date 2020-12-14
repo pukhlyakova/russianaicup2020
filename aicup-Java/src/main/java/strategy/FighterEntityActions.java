@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FighterEntityActions {
 
-    private final static int WAIT_COUNT = 25;
+    private final static int WAIT_COUNT = 50;
 
     private Status status;
 
@@ -61,8 +61,6 @@ public class FighterEntityActions {
     }
 
     private AttackAction createAttackAction(Entity target, EntityProperties properties) {
-        return new AttackAction(target == null ? null : target.getId(),
-                                new AutoAttack(properties.getSightRange(),
-                                new EntityType[0]));
+        return new AttackAction(target == null ? null : target.getId(), new AutoAttack(properties.getSightRange(), new EntityType[0]));
     }
 }
