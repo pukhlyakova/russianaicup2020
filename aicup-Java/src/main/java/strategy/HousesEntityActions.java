@@ -8,6 +8,10 @@ public class HousesEntityActions {
 
     private Status status;
 
+    private static final int MAX_RESOURCE = 500;
+
+    private static final int BUILDER_UNIT_MIN = 10;
+
     public HousesEntityActions(Status status) {
         this.status = status;
     }
@@ -38,15 +42,20 @@ public class HousesEntityActions {
         if (properties.getBuild() != null) {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
-            int count = status.countOfEntityWithType(entityType);
 
-            // if we have less than 10 builders do not build fighters
-            if (entityType != EntityType.BUILDER_UNIT && status.countOfEntityWithType(EntityType.BUILDER_UNIT) < 10) {
+            // Stop building MELEE_UNITS!
+            if (entityType == EntityType.MELEE_UNIT) {
                 return null;
             }
 
-            // Do not build builders when you have 50 of them
-            if (entityType == EntityType.BUILDER_UNIT && status.getResource() >= 500) {
+            // Do not build builders when you have MAX_RESOURCE resources
+            if (entityType == EntityType.BUILDER_UNIT && status.getResource() >= MAX_RESOURCE) {
+                return null;
+            }
+
+            // If we have less than BUILDER_UNIT_MIN builders do not build fighters
+            if (entityType != EntityType.BUILDER_UNIT &&
+                status.countOfEntityWithType(EntityType.BUILDER_UNIT) < BUILDER_UNIT_MIN) {
                 return null;
             }
 
