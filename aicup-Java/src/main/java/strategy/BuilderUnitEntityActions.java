@@ -12,6 +12,8 @@ public class BuilderUnitEntityActions {
 
     private HashSet<Integer> collectedResourceId;
 
+    private static final int BIG_HOUSE_BUILDERS_COUNT = 5;
+
     public BuilderUnitEntityActions(Status status) {
         this.status = status;
         this.builderToHouse = new HashMap<>();
@@ -46,20 +48,43 @@ public class BuilderUnitEntityActions {
         builderToHouse.clear();
 
         for (Entity house : status.getBrokenHouses()) {
-            Entity builder = null;
+            PriorityQueue<Entity> distances = new PriorityQueue<>((Entity e1, Entity e2) -> {
+                if (Utils.distance(house.getPosition(), e1.getPosition()) <
+                    Utils.distance(house.getPosition(), e2.getPosition())) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+
             for (Entity entity : entities) {
                 if (builderToHouse.containsKey(entity.getId())) {
                     continue;
                 }
-                if (builder == null || Utils.distance(house.getPosition(), entity.getPosition()) <
-                                       Utils.distance(house.getPosition(), builder.getPosition())) {
-                    builder = entity;
+                distances.add(entity);
+            }
+            if (needMoreBuilders(house)) {
+                for (int i = 0; i < BIG_HOUSE_BUILDERS_COUNT; ++i) {
+                    Entity entity = distances.poll();
+                    if (entity != null) {
+                        builderToHouse.put(entity.getId(), house);
+                    } else {
+                        break;
+                    }
+                }
+            } else {
+                if (!distances.isEmpty()) {
+                    builderToHouse.put(distances.poll().getId(), house);
                 }
             }
-            if (builder != null) {
-                builderToHouse.put(builder.getId(), house);
-            }
         }
+    }
+
+    private boolean needMoreBuilders(Entity house) {
+        // If house is big and not active then we need 4 builders
+        return !house.isActive() && (house.getEntityType() == EntityType.BUILDER_BASE ||
+                                     house.getEntityType() == EntityType.RANGED_BASE ||
+                                     house.getEntityType() == EntityType.MELEE_BASE);
     }
 
     private int findBuilder(EntityType targetType, Vec2Int target, List<Entity> entities) {
