@@ -117,7 +117,7 @@ public class BuilderUnitEntityActions {
     }
 
     private Vec2Int getBuildingTarget(EntityType type) {
-        if (type == EntityType.BUILDER_BASE || type == EntityType.RANGED_BASE) {
+        if (type == EntityType.BUILDER_BASE || type == EntityType.RANGED_BASE || type == EntityType.MELEE_BASE) {
             return status.getBigBuildingTarget();
         } else if (type == EntityType.HOUSE) {
             return status.getHouseTarget();
@@ -131,7 +131,13 @@ public class BuilderUnitEntityActions {
     }
 
     private boolean needRangedBase() {
-        return status.countOfEntityWithType(EntityType.RANGED_BASE) == 0 && status.getResource() > 500;
+        // all range base are active
+        boolean allRangeBaseAreActive = status.countOfEntityWithType(EntityType.RANGED_BASE) ==
+                                        status.countOfActiveEntityWithType(EntityType.RANGED_BASE);
+
+        return status.getResource() > 500 && // have money
+               (status.countOfEntityWithType(EntityType.RANGED_BASE) == 0 || // do not have RANGED_BASE
+                status.countOfEntityWithType(EntityType.RANGED_BASE) == 1 && allRangeBaseAreActive); // or have active one
     }
 
     private boolean needNewHouse() {

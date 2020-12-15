@@ -15,6 +15,7 @@ public class Status {
     private static final int ENTITY_TYPE_COUNT = 10;
 
     private int[] entityTypeCount; // count of my entities
+    private int[] activeEntityTypeCount; // count of my entities that is active
 
     private int[][] map; // contains EntityType.tag + 1, because 0 is for empty
 
@@ -30,6 +31,7 @@ public class Status {
 
     public Status() {
         entityTypeCount = new int[ENTITY_TYPE_COUNT];
+        activeEntityTypeCount = new int[ENTITY_TYPE_COUNT];
         resources = new ArrayList<>();
         brokenHouses = new ArrayList<>();
         enemies = new ArrayList<>();
@@ -66,9 +68,10 @@ public class Status {
         populationUse = 0;
         populationProvide = 0;
 
-        // clear entityTypeCount
+        // clear entityTypeCount and activeEntityTypeCount
         for (int i = 0; i < ENTITY_TYPE_COUNT; ++i) {
             entityTypeCount[i] = 0;
+            activeEntityTypeCount[i] = 0;
         }
 
         for (Entity entity : playerView.getEntities()) {
@@ -96,6 +99,9 @@ public class Status {
             populationUse += properties.getPopulationUse();
 
             entityTypeCount[entity.getEntityType().tag]++;
+            if (entity.isActive()) {
+                activeEntityTypeCount[entity.getEntityType().tag]++;
+            }
         }
     }
 
@@ -184,6 +190,10 @@ public class Status {
 
     public int countOfEntityWithType(EntityType entityType) {
         return entityTypeCount[entityType.tag];
+    }
+
+    public int countOfActiveEntityWithType(EntityType entityType) {
+        return activeEntityTypeCount[entityType.tag];
     }
 
     public int getResource() {
