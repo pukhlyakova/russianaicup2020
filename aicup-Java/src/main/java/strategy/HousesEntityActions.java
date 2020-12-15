@@ -8,7 +8,7 @@ public class HousesEntityActions {
 
     private Status status;
 
-    private static final int MAX_RESOURCE = 5000;
+    private static final int MAX_RESOURCE = 1000;
 
     private static final int BUILDER_UNIT_MIN = 10;
 
