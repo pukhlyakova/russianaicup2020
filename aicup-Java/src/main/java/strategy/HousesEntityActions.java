@@ -43,11 +43,6 @@ public class HousesEntityActions {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
 
-            // Stop building MELEE_UNITS!
-            if (entityType == EntityType.MELEE_UNIT) {
-                return null;
-            }
-
             // Do not build builders when you have MAX_RESOURCE resources
             if (entityType == EntityType.BUILDER_UNIT && status.getResource() >= MAX_RESOURCE) {
                 return null;
