@@ -60,14 +60,25 @@ public class FighterEntityActions {
                 target = enemy;
                 continue;
             }
-            if (enemy.getEntityType() == EntityType.RANGED_BASE && target.getEntityType() != enemy.getEntityType()) {
+            // If target is RANGED_BASE and enemy is not do not change the target
+            if (target.getEntityType() == EntityType.RANGED_BASE && enemy.getEntityType() != EntityType.RANGED_BASE) {
+                continue;
+            }
+            // If target is BUILDER_BASE and enemy is not do not change the target
+            if (target.getEntityType() == EntityType.BUILDER_BASE && target.getEntityType() != EntityType.BUILDER_BASE) {
+                continue;
+            }
+            // If enemy is RANGED_BASE and target is UPDATE the target
+            if (enemy.getEntityType() == EntityType.RANGED_BASE && target.getEntityType() != EntityType.RANGED_BASE) {
                 target = enemy;
                 continue;
             }
-            if (enemy.getEntityType() == EntityType.BUILDER_BASE && target.getEntityType() != enemy.getEntityType()) {
+            // If enemy is BUILDER_BASE and target is UPDATE the target
+            if (enemy.getEntityType() == EntityType.BUILDER_BASE && target.getEntityType() != EntityType.BUILDER_BASE) {
                 target = enemy;
                 continue;
             }
+            // In all other situations try to find closes target
             if (Utils.distance(pos, enemy.getPosition()) < Utils.distance(pos, target.getPosition())) {
                 target = enemy;
             }
@@ -100,7 +111,7 @@ public class FighterEntityActions {
     }
 
     private AttackAction createAttackAction(Entity target, EntityProperties properties) {
-        int pathfindRange = properties.getSightRange() + 2;
+        int pathfindRange = properties.getSightRange();
 
         return new AttackAction(target == null ? null : target.getId(),
                                 new AutoAttack(pathfindRange, new EntityType[0]));
