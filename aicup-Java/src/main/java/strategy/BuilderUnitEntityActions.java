@@ -148,8 +148,14 @@ public class BuilderUnitEntityActions {
             }
         }
 
-        //to many broken houses
+        // to many broken houses
         if (count >= 3) {
+            return false;
+        }
+
+        // If I do not have RANGED_BASE, I need to save money for it
+        if (status.countOfEntityWithType(EntityType.RANGED_BASE) == 0 &&
+            status.countOfEntityWithType(EntityType.HOUSE) >= 3) {
             return false;
         }
 
