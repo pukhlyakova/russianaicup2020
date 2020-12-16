@@ -56,8 +56,19 @@ public class FighterEntityActions {
         Entity target = null;
 
         for (Entity enemy : status.getEnemies()) {
-            if (target == null || Utils.distance(pos, enemy.getPosition()) <
-                                  Utils.distance(pos, target.getPosition())) {
+            if (target == null) {
+                target = enemy;
+                continue;
+            }
+            if (enemy.getEntityType() == EntityType.RANGED_BASE && target.getEntityType() != enemy.getEntityType()) {
+                target = enemy;
+                continue;
+            }
+            if (enemy.getEntityType() == EntityType.BUILDER_BASE && target.getEntityType() != enemy.getEntityType()) {
+                target = enemy;
+                continue;
+            }
+            if (Utils.distance(pos, enemy.getPosition()) < Utils.distance(pos, target.getPosition())) {
                 target = enemy;
             }
         }
