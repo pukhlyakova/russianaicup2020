@@ -10,6 +10,8 @@ public class HousesEntityActions {
 
     private static final int MAX_RESOURCE = 1000;
 
+    private static final int MAX_BUILDERS = 60;
+
     private static final int BUILDER_UNIT_MIN = 10;
 
     public HousesEntityActions(Status status) {
@@ -43,8 +45,14 @@ public class HousesEntityActions {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
 
+            // Stop building MELEE_UNITS!
+            if (entityType == EntityType.MELEE_UNIT) {
+                return null;
+            }
+
             // Do not build builders when you have MAX_RESOURCE resources
-            if (entityType == EntityType.BUILDER_UNIT && status.getResource() >= MAX_RESOURCE) {
+            if (entityType == EntityType.BUILDER_UNIT &&
+                status.countOfEntityWithType(EntityType.BUILDER_UNIT) >= MAX_BUILDERS) {
                 return null;
             }
 

@@ -34,8 +34,12 @@ public class FighterEntityActions {
 
                 position = closes2Center.getPosition();
             }
-            if (entities.size() >= WAIT_COUNT && target != null) {
-                position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
+            if (entities.size() >= WAIT_COUNT) {
+                if (target != null) {
+                    position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
+                } else {
+                    position = findClosesUnseenPoint(entity);
+                }
             }
 
             MoveAction moveAction = createMovingAction(position);
@@ -58,6 +62,26 @@ public class FighterEntityActions {
             }
         }
         return target;
+    }
+
+    private Vec2Int findClosesUnseenPoint(Entity entity) {
+        int mapSize = status.getMapSize();
+        Vec2Int entityPos = entity.getPosition();
+
+        int x = mapSize - 1;
+        int y = mapSize - 1;
+
+        for (int i = 0; i < mapSize; ++i) {
+            for (int j = 0; j < mapSize; ++j) {
+                if (status.getLastSeen(i, j) < status.getLastSeen(x, y) ||
+                        (status.getLastSeen(i, j) == status.getLastSeen(x, y) &&
+                         Utils.distance(entityPos, new Vec2Int(i, j)) < Utils.distance(entityPos, new Vec2Int(x, y)))) {
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+        return new Vec2Int(x, y);
     }
 
     private MoveAction createMovingAction(Vec2Int position) {

@@ -19,6 +19,8 @@ public class Status {
 
     private int[][] map; // contains EntityType.tag + 1, because 0 is for empty
 
+    private int[][] lastSeen; // contains the last tick when the cell was last seen
+
     private Vec2Int houseTarget; // coordinates for the construction of HOUSE
 
     private Vec2Int bigBuildingTarget; // coordinates for the construction BUILDER_BASE, RANGED_BASE and MELEE_BASE
@@ -52,6 +54,7 @@ public class Status {
 
         // fill map
         fillMap(playerView);
+        fillLastSeenMap(playerView);
 
         // update buildings target coordinates.
         updateHouseTarget();
@@ -134,6 +137,35 @@ public class Status {
         }
     }
 
+    private void fillLastSeenMap(PlayerView playerView) {
+        // create or clear map
+        if (lastSeen == null) {
+            lastSeen = new int[mapSize][mapSize];
+        }
+
+        int tick = playerView.getCurrentTick();
+
+        // fill the map
+        for (Entity entity : playerView.getEntities()) {
+            EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
+
+            int x = entity.getPosition().getX();
+            int y = entity.getPosition().getY();
+            int size = properties.getSize();
+            int range = properties.getSightRange();
+
+            for (int i = Math.max(0, x - range); i < Math.min(mapSize, x + size + range + 1); i++) {
+                for (int j = Math.max(0, y - range); j < Math.min(mapSize, y + size + range + 1); j++) {
+                    int xDis = x <= i && i < x + size ? 0 : Math.min(Math.abs(x - i), Math.abs(x + size - 1 - i));
+                    int yDis = y <= j && j < y + size ? 0 : Math.min(Math.abs(y - j), Math.abs(y + size - 1 - j));
+                    if (xDis + yDis <= range) {
+                        lastSeen[i][j] = tick;
+                    }
+                }
+            }
+        }
+    }
+
     private void updateHouseTarget() {
         houseTarget = findHouseTarget(houseSize);
     }
@@ -194,6 +226,10 @@ public class Status {
 
     public int countOfActiveEntityWithType(EntityType entityType) {
         return activeEntityTypeCount[entityType.tag];
+    }
+
+    public int getLastSeen(int x, int y) {
+        return lastSeen[x][y];
     }
 
     public int getResource() {
