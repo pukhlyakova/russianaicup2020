@@ -10,18 +10,49 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <graalvm.version>20.2.0</graalvm.version>
     </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.graalvm.sdk</groupId>
+            <artifactId>graal-sdk</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <finalName>aicup2020</finalName>
 
         <plugins>
             <plugin>
+                <groupId>org.graalvm.nativeimage</groupId>
+                <artifactId>native-image-maven-plugin</artifactId>
+                <version>${graalvm.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>native-image</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>false</skip>
+                    <imageName>aicup2020-native-with-dependencies</imageName>
+                    <buildArgs>
+                        --no-fallback
+                    </buildArgs>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <release>15</release>
+                    <release>11</release>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
