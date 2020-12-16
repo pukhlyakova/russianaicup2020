@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FighterEntityActions {
 
-    private final static int WAIT_COUNT = 50;
+    private final static int WAIT_COUNT = 30;
 
     private Status status;
 
@@ -18,7 +18,7 @@ public class FighterEntityActions {
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
         int mapSize = status.getMapSize();
         int half = mapSize / 2;
-        int basePose = mapSize / 4 + mapSize / 8;
+        int basePose = mapSize / 4;
 
         Entity closes2Center = findTarget(new Vec2Int(0, 0));
 
