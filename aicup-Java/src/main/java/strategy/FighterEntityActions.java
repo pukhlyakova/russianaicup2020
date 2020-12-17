@@ -29,8 +29,7 @@ public class FighterEntityActions {
             Entity target = findTarget(entity.getPosition());
             Vec2Int position = new Vec2Int(basePose, basePose);
 
-            if (entities.size() < WAIT_COUNT && closes2Center != null &&
-                Utils.distance(center, closes2Center.getPosition()) < half) {
+            if (closes2Center != null && Utils.distance(center, closes2Center.getPosition()) <= half) {
                 position = closes2Center.getPosition();
             }
             if (entities.size() >= WAIT_COUNT) {

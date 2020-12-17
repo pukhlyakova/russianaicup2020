@@ -8,8 +8,6 @@ public class HousesEntityActions {
 
     private Status status;
 
-    private static final int MAX_RESOURCE = 1000;
-
     private static final int MAX_BUILDERS = 60;
 
     private static final int BUILDER_UNIT_MIN = 10;
@@ -27,8 +25,7 @@ public class HousesEntityActions {
             AttackAction attackAction = createAttackAction(entity, properties);
 
             result.getEntityActions().put(entity.getId(), new EntityAction(
-                    null, buildAction, attackAction, null
-            ));
+                    null, buildAction, attackAction, null));
         }
     }
 
@@ -45,15 +42,15 @@ public class HousesEntityActions {
 
             EntityType entityType = properties.getBuild().getOptions()[0];
 
-            // Do not build builders when you have MAX_RESOURCE resources
-            if (entityType == EntityType.BUILDER_UNIT &&
-                status.countOfEntityWithType(EntityType.BUILDER_UNIT) >= MAX_BUILDERS) {
+            int builderCount = status.countOfEntityWithType(EntityType.BUILDER_UNIT);
+
+            // Do not build builders when you have MAX_BUILDERS builders
+            if (entityType == EntityType.BUILDER_UNIT && builderCount >= MAX_BUILDERS) {
                 return null;
             }
 
             // If we have less than BUILDER_UNIT_MIN builders do not build fighters
-            if (entityType != EntityType.BUILDER_UNIT &&
-                status.countOfEntityWithType(EntityType.BUILDER_UNIT) < BUILDER_UNIT_MIN) {
+            if (entityType != EntityType.BUILDER_UNIT && builderCount < BUILDER_UNIT_MIN) {
                 return null;
             }
 

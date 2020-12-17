@@ -183,8 +183,8 @@ public class Status {
         int spaceSize = buildingSize + 2; // need space to stay and to move
         Vec2Int zero = new Vec2Int(0, 0);
 
-        for (int i = 0; i < mapSize / 2; i++) {
-            for (int j = 0; j < mapSize / 2; j++) {
+        for (int i = 0; i < mapSize - spaceSize; i++) {
+            for (int j = 0; j < mapSize - spaceSize; j++) {
                 found = true;
                 for (int k = 0; k < spaceSize; ++k) {
                     for (int l = 0; l < spaceSize; ++l) {

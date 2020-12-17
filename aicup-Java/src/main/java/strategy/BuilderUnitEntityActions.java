@@ -24,6 +24,9 @@ public class BuilderUnitEntityActions {
 
     // priority: attack, build, repair and move
     public void addEntityActions(PlayerView playerView, List<Entity> entities, Action result) {
+        //clear
+        collectedResourceId.clear();
+
         // update builderToHouse
         updateBuilderToHouse(entities);
 
@@ -164,7 +167,7 @@ public class BuilderUnitEntityActions {
         }
 
         return status.getPopulationProvide() - status.getPopulationUse() <= 1 ||
-               status.getResource() > 100;
+               status.getResource() > 50;
     }
 
     private EntityAction builderAction(EntityType targetType, Vec2Int target) {
