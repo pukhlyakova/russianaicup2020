@@ -14,6 +14,8 @@ public class BuilderUnitEntityActions {
 
     private static final int BIG_HOUSE_BUILDERS_COUNT = 5;
 
+    private static final int SMALL_HOUSE_BUILDERS_COUNT = 2;
+
     public BuilderUnitEntityActions(Status status) {
         this.status = status;
         this.builderToHouse = new HashMap<>();
@@ -63,8 +65,14 @@ public class BuilderUnitEntityActions {
                 }
                 distances.add(entity);
             }
-            if (needMoreBuilders(house)) {
-                for (int i = 0; i < BIG_HOUSE_BUILDERS_COUNT; ++i) {
+            if (house.isActive()) {
+                // If house is active we need only one builder
+                if (!distances.isEmpty()) {
+                    builderToHouse.put(distances.poll().getId(), house);
+                }
+            } else {
+                int count = isBuildHouse(house) ? BIG_HOUSE_BUILDERS_COUNT : SMALL_HOUSE_BUILDERS_COUNT;
+                for (int i = 0; i < count; ++i) {
                     Entity entity = distances.poll();
                     if (entity != null) {
                         builderToHouse.put(entity.getId(), house);
@@ -72,19 +80,15 @@ public class BuilderUnitEntityActions {
                         break;
                     }
                 }
-            } else {
-                if (!distances.isEmpty()) {
-                    builderToHouse.put(distances.poll().getId(), house);
-                }
             }
+
         }
     }
 
-    private boolean needMoreBuilders(Entity house) {
-        // If house is big and not active then we need 4 builders
-        return !house.isActive() && (house.getEntityType() == EntityType.BUILDER_BASE ||
-                                     house.getEntityType() == EntityType.RANGED_BASE ||
-                                     house.getEntityType() == EntityType.MELEE_BASE);
+    private boolean isBuildHouse(Entity house) {
+        return house.getEntityType() == EntityType.BUILDER_BASE ||
+               house.getEntityType() == EntityType.RANGED_BASE ||
+               house.getEntityType() == EntityType.MELEE_BASE;
     }
 
     private int findBuilder(EntityType targetType, Vec2Int target, List<Entity> entities) {
