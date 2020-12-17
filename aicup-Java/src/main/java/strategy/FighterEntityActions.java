@@ -20,7 +20,8 @@ public class FighterEntityActions {
         int half = mapSize / 2;
         int basePose = mapSize / 4;
 
-        Entity closes2Center = findTarget(new Vec2Int(0, 0));
+        Vec2Int center = new Vec2Int(0, 0);
+        Entity closes2Center = findTarget(center);
 
         for (Entity entity : entities) {
             EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
@@ -28,15 +29,13 @@ public class FighterEntityActions {
             Entity target = findTarget(entity.getPosition());
             Vec2Int position = new Vec2Int(basePose, basePose);
 
-            if (entities.size() < WAIT_COUNT &&
-                closes2Center != null &&
-                Utils.distance(new Vec2Int(0, 0), closes2Center.getPosition()) < half) {
-
+            if (entities.size() < WAIT_COUNT && closes2Center != null &&
+                Utils.distance(center, closes2Center.getPosition()) < half) {
                 position = closes2Center.getPosition();
             }
             if (entities.size() >= WAIT_COUNT) {
                 if (target != null) {
-                    position = new Vec2Int(target.getPosition().getX(), target.getPosition().getY());
+                    position = target.getPosition();
                 } else {
                     position = findClosesUnseenPoint(entity);
                 }
@@ -60,25 +59,7 @@ public class FighterEntityActions {
                 target = enemy;
                 continue;
             }
-            // If target is RANGED_BASE and enemy is not do not change the target
-            if (target.getEntityType() == EntityType.RANGED_BASE && enemy.getEntityType() != EntityType.RANGED_BASE) {
-                continue;
-            }
-            // If target is BUILDER_BASE and enemy is not do not change the target
-            if (target.getEntityType() == EntityType.BUILDER_BASE && target.getEntityType() != EntityType.BUILDER_BASE) {
-                continue;
-            }
-            // If enemy is RANGED_BASE and target is UPDATE the target
-            if (enemy.getEntityType() == EntityType.RANGED_BASE && target.getEntityType() != EntityType.RANGED_BASE) {
-                target = enemy;
-                continue;
-            }
-            // If enemy is BUILDER_BASE and target is UPDATE the target
-            if (enemy.getEntityType() == EntityType.BUILDER_BASE && target.getEntityType() != EntityType.BUILDER_BASE) {
-                target = enemy;
-                continue;
-            }
-            // In all other situations try to find closes target
+            // Find closes enemy
             if (Utils.distance(pos, enemy.getPosition()) < Utils.distance(pos, target.getPosition())) {
                 target = enemy;
             }
