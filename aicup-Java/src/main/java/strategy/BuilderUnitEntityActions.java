@@ -187,7 +187,7 @@ public class BuilderUnitEntityActions {
         EntityProperties properties = playerView.getEntityProperties().get(entity.getEntityType());
 
         // target info
-        Vec2Int target = new Vec2Int(playerView.getMapSize() - 1, playerView.getMapSize() - 1);
+        Vec2Int target = Utils.findClosesUnseenPoint(status, entity.getPosition());
         int targetId = -1;
 
         for (Entity resource : status.getResources()) {
