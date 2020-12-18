@@ -138,8 +138,13 @@ public class BuilderUnitEntityActions {
     }
 
     private boolean needRangedBase() {
+        // all range base are active
+        boolean allRangeBaseAreActive = status.countOfEntityWithType(EntityType.RANGED_BASE) ==
+                status.countOfActiveEntityWithType(EntityType.RANGED_BASE);
+
         return status.getResource() > 500 && // have money
-               (status.countOfEntityWithType(EntityType.RANGED_BASE) == 0 ); // do not have RANGED_BASE
+               (status.countOfEntityWithType(EntityType.RANGED_BASE) == 0 || // do not have RANGED_BASE
+               status.countOfEntityWithType(EntityType.RANGED_BASE) == 1 && allRangeBaseAreActive); // or have active one
     }
 
     private boolean needNewHouse() {
