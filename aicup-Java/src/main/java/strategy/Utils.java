@@ -1,6 +1,5 @@
 package strategy;
 
-import model.Entity;
 import model.Vec2Int;
 
 public class Utils {
