@@ -14,7 +14,7 @@ public class BuilderUnitEntityActions {
 
     private static final int BIG_HOUSE_BUILDERS_COUNT = 5;
 
-    private static final int SMALL_HOUSE_BUILDERS_COUNT = 3;
+    private static final int SMALL_HOUSE_BUILDERS_COUNT = 2;
 
     public BuilderUnitEntityActions(Status status) {
         this.status = status;
